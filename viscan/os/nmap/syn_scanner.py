@@ -13,6 +13,27 @@ class NmapSynScanner(NmapTCPOpenScanner):
     syn_round: int
     syn_results: List[List[bytes]]
 
+    fp_names = [
+        'S1#1',
+        'S2#1',
+        'S3#1',
+        'S4#1',
+        'S5#1',
+        'S6#1',
+        'S1#2',
+        'S2#2',
+        'S3#2',
+        'S4#2',
+        'S5#2',
+        'S6#2',
+        'S1#3',
+        'S2#3',
+        'S3#3',
+        'S4#3',
+        'S5#3',
+        'S6#3',
+    ]
+
     tcp_args = [
         # S1
         (1, [
@@ -67,6 +88,7 @@ class NmapSynScanner(NmapTCPOpenScanner):
         self.syn_round = -1
         self.syn_results = [[] for _ in range(3)]
         super().__init__(**kwargs)
+        self.interval = 0.1  # force 0.1s
 
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
@@ -94,9 +116,8 @@ class NmapSynScanner(NmapTCPOpenScanner):
         self.pkts_prepared = False
         return super().prepare_pkts()
 
-    def parse_multi(self) -> List[Optional[bytes]]:
+    def parse(self) -> List[Optional[bytes]]:
         results: List[Optional[bytes]] = [None for _ in range(18)]
-
         for i in range(3):
             for buf in self.syn_results[i]:
                 ippkt = sp.Ether(buf)[sp.IPv6]
@@ -106,19 +127,4 @@ class NmapSynScanner(NmapTCPOpenScanner):
                     results[3 * i + j] = sp.raw(ippkt)
                 else:
                     self.logger.warning('invalid ack number')
-
         return results
-
-    def update_fp(self, fp: Dict[str, Optional[str]]):
-        try:
-            results = self.parse_multi()
-            for i in range(3):
-                for j in range(6):
-                    name = f'S{j+1}#{i+1}'
-                    result = results[3 * i + j]
-                    if result is None:
-                        fp[name] = None
-                    else:
-                        fp[name] = base64.b64encode(result).decode()
-        except Exception as e:
-            self.logger.error('excpet while parsing: %s', e)

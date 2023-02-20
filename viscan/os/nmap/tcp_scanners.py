@@ -42,8 +42,7 @@ class NmapTCPClosedScanner(NmapTCPBaseScanner):
 
 
 class NmapTECNScanner(NmapTCPOpenScanner):
-
-    name = 'TECN'
+    fp_names = ['TECN']
 
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
@@ -83,35 +82,35 @@ class _NmapTCPFlagsWindowMixin:
 
 
 class NmapT2Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
-    name = 'T2'
+    fp_names = ['T2']
     window = 128
 
 
 class NmapT3Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
-    name = 'T3'
+    fp_names = ['T3']
     flags = 'FSPU'
     window = 256
 
 
 class NmapT4Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
-    name = 'T4'
+    fp_names = ['T4']
     flags = 'A'
     window = 1024
 
 
 class NmapT5Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
-    name = 'T5'
+    fp_names = ['T5']
     flags = 'S'
     window = 31337
 
 
 class NmapT6Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
-    name = 'T6'
+    fp_names = ['T6']
     flags = 'A'
     window = 32768
 
 
 class NmapT7Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
-    name = 'T7'
+    fp_names = ['T7']
     flags = 'FPU'
     window = 65535

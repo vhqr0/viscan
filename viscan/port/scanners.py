@@ -39,8 +39,7 @@ class PortScanner(PcapStatelessScanner):
         results = []
         for result in self.results:
             try:
-                pkt = sp.Ether(result)
-                ippkt = pkt[sp.IPv6]
+                ippkt = sp.Ether(result)[sp.IPv6]
                 tcppkt = ippkt[sp.TCP]
                 flags = tcppkt.flags
                 if 'R' in flags:

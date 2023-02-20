@@ -3,7 +3,7 @@ import logging
 
 import scapy.all as sp
 
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from ..generic import PcapStatefulScanner
 
@@ -15,7 +15,7 @@ class OSScanner(PcapStatefulScanner):
 
     logger = logging.getLogger('os_scanner')
 
-    name: Optional[str] = None
+    fp_names: List[str]
 
     def __init__(self,
                  target: str,
@@ -27,19 +27,20 @@ class OSScanner(PcapStatefulScanner):
         self.closed_port = closed_port
         super().__init__(**kwargs)
 
-    def parse(self) -> Optional[bytes]:
+    def parse(self) -> List[Optional[bytes]]:
         if not self.results:
-            return None
-        return sp.raw(sp.Ether(self.results[0])[sp.IPv6])
+            return [None]
+        return [sp.raw(sp.Ether(self.results[0])[sp.IPv6])]
 
     def update_fp(self, fp: Dict[str, Optional[str]]):
-        if self.name is None:
+        if len(self.fp_names) == 0:
             raise NotImplementedError
         try:
-            result = self.parse()
-            if result is None:
-                fp[self.name] = None
-            else:
-                fp[self.name] = base64.b64encode(result).decode()
+            results = self.parse()
+            for name, result in zip(self.fp_names, results):
+                if result is None:
+                    fp[name] = None
+                else:
+                    fp[name] = base64.b64encode(result).decode()
         except Exception as e:
             self.logger.error('except while parsing: %s', e)

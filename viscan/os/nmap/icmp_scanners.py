@@ -12,7 +12,7 @@ Pad4 = sp.PadN(optdata=b'\x00\x00\x00\x00')
 class NmapU1Scanner(OSScanner):
     port: int
 
-    name = 'U1'
+    fp_names = ['U1']
 
     filter_tpl = 'ip6 src {} and ' \
         'icmp6[icmp6type]==icmp6-destinationunreach and ' \
@@ -38,7 +38,7 @@ class NmapU1Scanner(OSScanner):
 class NmapIE1Scanner(OSScanner):
     ieid: int
 
-    name = 'IE1'
+    fp_names = ['IE1']
 
     filter_tpl = 'ip6 src {} and ' \
         'icmp6[icmp6type]==icmp6-echoreply and ' \
@@ -64,7 +64,7 @@ class NmapIE1Scanner(OSScanner):
 class NmapIE2Scanner(OSScanner):
     ieid: int
 
-    name = 'IE2'
+    fp_names = ['IE2']
 
     # Notice: icmpv6 parameter problem need deeper analysis
     filter_tpl = 'ip6 src {} and ' \
@@ -78,7 +78,7 @@ class NmapIE2Scanner(OSScanner):
         super().__init__(**kwargs)
 
     # TODO: deeper analysis
-    # def parse(self) -> Optional[bytes]:
+    # def parse(self) -> List[Optional[bytes]]:
     #     pass
 
     def get_filter(self) -> str:
