@@ -33,7 +33,7 @@ class NmapU1Scanner(OSScanner):
         return pkts
 
 
-class IE1Scanner(OSScanner):
+class NmapIE1Scanner(OSScanner):
     ieid: int
 
     filter_tpl = 'ip6 src {} and ' \
@@ -57,7 +57,7 @@ class IE1Scanner(OSScanner):
         return [pkt]
 
 
-class IE2Scanner(OSScanner):
+class NmapIE2Scanner(OSScanner):
     ieid: int
 
     # Notice: icmpv6 parameter problem need deeper analysis
