@@ -16,6 +16,7 @@ class PortScanner(PcapStatelessScanner):
 
     def __init__(self, targets: List[Tuple[str, int]], **kwargs):
         self.targets = targets
+        self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
     def get_pkts(self) -> List[sp.IPv6]:
