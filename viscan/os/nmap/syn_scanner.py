@@ -5,10 +5,10 @@ import scapy.all as sp
 
 from typing import Optional, List
 
-from ...generic import PcapStatelessScanner
+from ...generic import PcapStatefulScanner
 
 
-class NmapSynScanner(PcapStatelessScanner):
+class NmapSynScanner(PcapStatefulScanner):
     target: str
     target_port: int
     port: int
@@ -103,7 +103,7 @@ class NmapSynScanner(PcapStatelessScanner):
             pkts.append(pkt)
         return pkts
 
-    def prepare_pkts(self):
+    def prepare_pkts(self) -> bool:
         if self.syn_round >= 0:
             self.syn_results[self.syn_round] = self.results
             self.results = []
