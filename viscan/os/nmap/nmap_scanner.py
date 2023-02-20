@@ -22,7 +22,7 @@ class NmapScanner:
 
     logger = logging.getLogger('nmap_scanner')
 
-    scanner_clses: List[Type[OSScanner]] = {
+    scanner_clses: List[Type[OSScanner]] = [
         NmapSynScanner,
         NmapTECNScanner,
         NmapT2Scanner,
@@ -34,7 +34,7 @@ class NmapScanner:
         NmapU1Scanner,
         NmapIE1Scanner,
         NmapIE2Scanner,
-    }
+    ]
 
     def __init__(self, **kwargs):
         self.kwargs = kwargs
