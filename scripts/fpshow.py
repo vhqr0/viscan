@@ -22,5 +22,5 @@ for name, fp_encoded in data.items():
         except Exception as e:
             print(f'except while parsing: {e}')
     else:
-        print('None')
+        print('None\n')
     print(f'--- end: {name} ---\n')

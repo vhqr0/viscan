@@ -1,26 +1,17 @@
 import random
-import logging
+import base64
 
 import scapy.all as sp
 
-from typing import Optional, List
+from typing import Optional, Dict, List
 
-from ...generic import PcapStatefulScanner
+from .tcp_scanners import NmapTCPOpenScanner
 
 
-class NmapSynScanner(PcapStatefulScanner):
-    target: str
-    target_port: int
-    port: int
+class NmapSynScanner(NmapTCPOpenScanner):
     initial_seq: int
     syn_round: int
     syn_results: List[List[bytes]]
-
-    logger = logging.getLogger('syn_scanner')
-
-    filter_tpl = 'ip6 and ' \
-        'tcp dst port {} and ' \
-        'tcp src port {}'
 
     tcp_args = [
         # S1
@@ -71,23 +62,13 @@ class NmapSynScanner(PcapStatefulScanner):
         ]),
     ]
 
-    def __init__(self,
-                 target: str,
-                 open_port: Optional[int] = None,
-                 closed_port: Optional[int] = None,
-                 **kwargs):
+    def __init__(self, open_port: Optional[int] = None, **kwargs):
         if open_port is None:
             raise ValueError('target port is None')
-        self.target = target
-        self.target_port = open_port
-        self.port = random.getrandbits(16)
         self.initial_seq = random.getrandbits(31)
         self.syn_round = -1
         self.syn_results = [[] for _ in range(3)]
         super().__init__(**kwargs)
-
-    def get_filter(self) -> str:
-        return self.filter_tpl.format(self.port, self.target_port)
 
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
@@ -115,9 +96,8 @@ class NmapSynScanner(PcapStatefulScanner):
         self.pkts_prepared = False
         return super().prepare_pkts()
 
-    def parse(self) -> List[List[Optional[bytes]]]:
-        results: List[List[Optional[bytes]]] = [[None for _ in range(6)]
-                                                for _ in range(3)]
+    def parse_multi(self) -> List[Optional[bytes]]:
+        results: List[Optional[bytes]] = [None for _ in range(18)]
 
         for i in range(3):
             for buf in self.syn_results[i]:
@@ -125,8 +105,22 @@ class NmapSynScanner(PcapStatefulScanner):
                 tcppkt = ippkt[sp.TCP]
                 j = tcppkt.ack - self.initial_seq - 1
                 if 0 <= j < 6:
-                    results[i][j] = sp.raw(ippkt)
+                    results[3 * i + j] = sp.raw(ippkt)
                 else:
                     self.logger.warning('invalid ack number')
 
         return results
+
+    def update_fp(self, fp: Dict[str, Optional[str]]):
+        try:
+            results = self.parse_multi()
+            for i in range(3):
+                for j in range(6):
+                    name = f'S{j+1}#{i+1}'
+                    result = results[3 * i + j]
+                    if result is None:
+                        fp[name] = None
+                    else:
+                        fp[name] = base64.b64encode(result).decode()
+        except Exception as e:
+            self.logger.error('excpet while parsing: %s', e)
