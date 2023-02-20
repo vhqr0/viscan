@@ -38,7 +38,7 @@ def main():
 
     targets = AddrPortGenerator(addrs, ports).addrports
     scanner = PortScanner(targets, interval=interval)
-    scanner.run()
+    scanner.scan()
     results = scanner.parse()
 
     if output is not None:
