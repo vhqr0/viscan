@@ -32,13 +32,13 @@ class NmapTCPBaseScanner(OSScanner):
 class NmapTCPOpenScanner(NmapTCPBaseScanner):
 
     def __init__(self, open_port: Optional[int] = None, **kwargs):
-        super().__init__(open_port, **kwargs)
+        super().__init__(target_port=open_port, **kwargs)
 
 
 class NmapTCPClosedScanner(NmapTCPBaseScanner):
 
     def __init__(self, closed_port: Optional[int] = None, **kwargs):
-        super().__init__(closed_port, **kwargs)
+        super().__init__(target_port=closed_port, **kwargs)
 
 
 class NmapTECNScanner(NmapTCPOpenScanner):
