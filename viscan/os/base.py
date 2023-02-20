@@ -15,7 +15,7 @@ class OSScanner(PcapStatefulScanner):
 
     logger = logging.getLogger('os_scanner')
 
-    name = Optional[str]
+    name: Optional[str] = None
 
     def __init__(self,
                  target: str,

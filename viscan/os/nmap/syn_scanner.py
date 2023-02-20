@@ -62,9 +62,7 @@ class NmapSynScanner(NmapTCPOpenScanner):
         ]),
     ]
 
-    def __init__(self, open_port: Optional[int] = None, **kwargs):
-        if open_port is None:
-            raise ValueError('target port is None')
+    def __init__(self, **kwargs):
         self.initial_seq = random.getrandbits(31)
         self.syn_round = -1
         self.syn_results = [[] for _ in range(3)]
