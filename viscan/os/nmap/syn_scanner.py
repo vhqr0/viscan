@@ -106,7 +106,7 @@ class NmapSynScanner(PcapStatelessScanner):
     def prepare_pkts(self):
         if self.syn_round >= 0:
             self.syn_results[self.syn_round] = self.results
-            self.results.clear()
+            self.results = []
 
         self.syn_round += 1
         if self.syn_round >= 3:
