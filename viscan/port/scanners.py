@@ -15,6 +15,7 @@ class PortScanner(PcapStatelessScanner):
     logger = logging.getLogger('port_scanner')
 
     def __init__(self, targets: List[Tuple[str, int]], **kwargs):
+        self.targets = targets
         super().__init__(**kwargs)
 
     def get_pkts(self) -> List[sp.IPv6]:
