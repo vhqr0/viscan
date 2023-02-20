@@ -4,6 +4,7 @@ import logging
 from typing import Optional, Type, Any, Mapping, Dict
 
 from ..base import OSScanner
+from .syn_scanner import NmapSynScanner
 from .tcp_scanners import (
     NmapTECNScanner,
     NmapT2Scanner,
@@ -42,6 +43,20 @@ class NmapScanner:
     def scan(self):
         self.results.clear()
 
+        try:
+            syn_scanner = NmapSynScanner(**self.kwargs)
+            syn_scanner.scan()
+            syn_results = syn_scanner.parse()
+            for i in range(3):
+                for j, fp in enumerate(syn_results[i]):
+                    name = f'S{j+1}#{i+1}'
+                    if fp is None:
+                        self.results[name] = None
+                    else:
+                        self.results[name] = base64.b64encode(fp).decode()
+        except Exception as e:
+            self.logger.error('except while scanning: %s', e)
+
         for name, scanner_cls in self.scanner_clses_map.items():
             try:
                 scanner = scanner_cls(**self.kwargs)
@@ -52,4 +67,4 @@ class NmapScanner:
                 else:
                     self.results[name] = base64.b64encode(fp).decode()
             except Exception as e:
-                self.logger.error('except while nmap scanning: %s', e)
+                self.logger.error('except while scanning: %s', e)
