@@ -50,3 +50,7 @@ def main():
     else:
         for name, fp in results.items():
             print(f'{name}\t{fp}')
+
+
+if __name__ == '__main__':
+    main()
