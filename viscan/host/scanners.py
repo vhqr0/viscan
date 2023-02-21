@@ -3,7 +3,7 @@ import struct
 import socket
 import logging
 
-from typing import Optional, Tuple, List
+from typing import Tuple, List
 
 from ..generic import DgramStatelessScanner
 from ..utils.icmp6_filter import (
@@ -19,26 +19,22 @@ class HostScanner(DgramStatelessScanner):
 
     logger = logging.getLogger('host_scanner')
 
-    def __init__(self,
-                 targets: List[str],
-                 sock: Optional[socket.socket] = None,
-                 **kwargs):
-        if sock is None:
-            sock = socket.socket(family=socket.AF_INET6,
-                                 type=socket.SOCK_RAW,
-                                 proto=socket.IPPROTO_ICMPV6)
-            self.prepare_sock(sock)
+    def __init__(self, targets: List[str], **kwargs):
         self.targets = targets
         self.ieid = random.getrandbits(16)
-        super().__init__(sock=sock, **kwargs)
+        super().__init__(**kwargs)
 
-    @staticmethod
-    def prepare_sock(sock: socket.socket):
-        sock.setblocking(False)
+    def get_sock(self) -> socket.socket:
+        return socket.socket(family=socket.AF_INET6,
+                             type=socket.SOCK_RAW,
+                             proto=socket.IPPROTO_ICMPV6)
+
+    def prepare_sock(self, sock: socket.socket):
         icmp6_filter = ICMP6Filter()
         icmp6_filter.setblockall()
         icmp6_filter.setpass(ICMP6_ECHOREP)
         icmp6_filter.setsockopt(sock)
+        super().prepare_sock(sock)
 
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         pkts = []

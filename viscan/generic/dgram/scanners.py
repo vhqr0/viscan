@@ -2,7 +2,7 @@ import select
 import socket
 import logging
 
-from typing import Tuple
+from typing import Optional, Tuple
 
 from ..base import (
     BaseScanner,
@@ -19,9 +19,18 @@ class DgramScanner(GenericScanMixin[DgramPkt, DgramPkt], BaseScanner):
 
     logger = logging.getLogger('dgram_scanner')
 
-    def __init__(self, sock: socket.socket, **kwargs):
+    def __init__(self, sock: Optional[socket.socket], **kwargs):
+        if sock is None:
+            sock = self.get_sock()
+            self.prepare_sock(sock)
         self.sock = sock
         super().__init__(**kwargs)
+
+    def get_sock(self) -> socket.socket:
+        raise NotImplementedError
+
+    def prepare_sock(self, sock: socket.socket):
+        sock.setblocking(False)
 
     def send_pkt(self, pkt: DgramPkt):
         addr, port, buf = pkt
