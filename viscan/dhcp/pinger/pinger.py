@@ -58,9 +58,9 @@ class DHCPPinger(StatefulScanMixin, DHCPBaseScanner):
             except Exception as e:
                 self.logger.debug('except while parsing: %s', e)
                 continue
-            self.results.clear()
-            return self.dhcp_reply is not None and \
-                self.dhcp_advertise is not None
+        self.results.clear()
+        return self.dhcp_reply is not None and \
+            self.dhcp_advertise is not None
 
     def run(self):
         self.dhcp_reply = None
