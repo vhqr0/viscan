@@ -1,7 +1,7 @@
 import json
 import argparse
 
-from ..defaults import (
+from ...defaults import (
     RETRY,
     TIMEWAIT,
     INTERVAL,
