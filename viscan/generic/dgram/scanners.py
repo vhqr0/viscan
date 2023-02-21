@@ -32,7 +32,11 @@ class DgramScanner(GenericScanMixin[DgramPkt, DgramPkt], BaseScanner):
             rlist, _, _ = select.select([self.sock], [], [], 1)
             if rlist:
                 buf, addrport = self.sock.recvfrom(4096)
-                addr, port = addrport
+                addr, port = '', 0
+                if len(addrport) >= 1:
+                    addr = addrport[0]
+                if len(addrport) >= 2:
+                    port = addrport[1]
                 self.add_result((addr, port, buf))
 
 
