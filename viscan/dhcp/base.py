@@ -25,7 +25,7 @@ class DHCPBaseScanner(DgramScanner):
         super().__init__(**kwargs)
 
     def prepare_sock(self, sock: socket.socket):
-        sock.bind(('::', 443))
+        sock.bind(('::', 547))
         super().prepare_sock(sock)
 
     def build_inforeq(self,
