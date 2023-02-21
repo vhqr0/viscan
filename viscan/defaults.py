@@ -4,6 +4,8 @@ INTERVAL = 0.1
 
 MAX_TARGETS = 65536
 
+TRACEROUTE_LIMIT = 32
+
 DNS_LIMIT = 4
 
 # from nmap/portlist.cc::random_port_cheat::pop_ports

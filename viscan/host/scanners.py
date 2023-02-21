@@ -8,8 +8,8 @@ from typing import Tuple, List
 from ..generic import DgramStatelessScanner
 from ..utils.icmp6_filter import (
     ICMP6Filter,
-    ICMP6_ECHOREQ,
-    ICMP6_ECHOREP,
+    ICMP6_ECHO_REQ,
+    ICMP6_ECHO_REP,
 )
 
 
@@ -27,14 +27,14 @@ class HostScanner(DgramStatelessScanner):
     def prepare_sock(self, sock: socket.socket):
         icmp6_filter = ICMP6Filter()
         icmp6_filter.setblockall()
-        icmp6_filter.setpass(ICMP6_ECHOREP)
+        icmp6_filter.setpass(ICMP6_ECHO_REP)
         icmp6_filter.setsockopt(sock)
         super().prepare_sock(sock)
 
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         pkts = []
         for seq, target in enumerate(self.targets):
-            buf = struct.pack('!BBHHH', ICMP6_ECHOREQ, 0, 0, self.ieid, seq)
+            buf = struct.pack('!BBHHH', ICMP6_ECHO_REQ, 0, 0, self.ieid, seq)
             buf += random.randbytes(random.randint(20, 40))
             pkts.append((target, 0, buf))
         return pkts
