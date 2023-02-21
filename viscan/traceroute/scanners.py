@@ -38,38 +38,33 @@ class TracerouteScanner(DgramStatefulScanner):
         return [(self.target, 0, buf)]
 
     def prepare_pkts(self):
-        if self.tr_round >= self.limit:
-            return False
+
+        arrived = False
 
         if self.tr_round != 0:
-
             if self.results:
                 for pkt in self.results:
                     addr, _, buf = pkt
                     ietype, _, _, ieid, seq = \
                         struct.unpack_from('!BBHHH', buffer=buf, offset=0)
-                    if ietype == ICMP6_ECHO_REP:  # arrive
+                    if ietype == ICMP6_ECHO_REP:  # arrived
                         if ieid == self.ieid and seq == self.tr_round:
+                            arrived = True
                             self.tr_results.append(addr)
-                            self.results.clear()
-                            self.tr_round += 1
-                            return False
+                            break
                     if ietype == ICMP6_TIME_EXCEEDED:  # continue
                         buf = buf[8:]
                         if buf == self.pkts[0][:len(buf)]:
                             self.tr_results.append(addr)
-                            self.results.clear()
-                            self.tr_round += 1
-                            if self.tr_round >= self.limit:
-                                return False
-                            self.pkts_prepared = False
-                            return super().prepare_pkts()
-                self.tr_results.clear()  # receive but useless
-
-            self.tr_results.append(None)
+                            break
+                else:  # no useful results
+                    self.tr_results.append(None)
+                self.results.clear()
+            else:  # no results
+                self.tr_results.append(None)
 
         self.tr_round += 1
-        if self.tr_round >= self.limit:
+        if arrived or self.tr_round >= self.limit:
             return False
 
         self.pkts_prepared = False
