@@ -52,7 +52,7 @@ class DHCPPinger(StatefulScanMixin, DHCPBaseScanner):
                 if isinstance(msg, dhcp6.DHCP6_Advertise):
                     if msg.trid != 2 or dhcp6.DHCP6OptServerId not in msg:
                         raise ValueError('invalid advertise')
-                    if self.dhcp_reply is not None:
+                    if self.dhcp_advertise is not None:
                         raise ValueError('duplicated advertise')
                     self.dhcp_advertise = msg
             except Exception as e:
