@@ -3,12 +3,14 @@ import struct
 import socket
 import logging
 
-import scapy.all as sp
-
 from typing import Optional, Tuple, List
 
 from ..generic import DgramStatelessScanner
-from ..utils.icmp6_filter import ICMP6Filter, ICMP6_ECHOREP
+from ..utils.icmp6_filter import (
+    ICMP6Filter,
+    ICMP6_ECHOREQ,
+    ICMP6_ECHOREP,
+)
 
 
 class HostScanner(DgramStatelessScanner):
@@ -41,11 +43,9 @@ class HostScanner(DgramStatelessScanner):
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         pkts = []
         for seq, target in enumerate(self.targets):
-            pkt = sp.ICMPv6EchoRequest(id=self.ieid,
-                                       seq=seq,
-                                       data=random.randbytes(
-                                           random.randint(20, 40)))
-            pkts.append((target, 0, sp.raw(pkt)))
+            buf = struct.pack('!BBHHH', ICMP6_ECHOREQ, 0, 0, self.ieid, seq)
+            buf += random.randbytes(random.randint(20, 40))
+            pkts.append((target, 0, buf))
         return pkts
 
     def lfilter(self, pkt: Tuple[str, int, bytes]) -> bool:
