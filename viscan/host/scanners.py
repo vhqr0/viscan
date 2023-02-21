@@ -57,7 +57,7 @@ class HostScanner(DgramStatelessScanner):
         for pkt in self.results:
             try:
                 addr, _, buf = pkt
-                seq = struct.unpack_from('!H', buffer=buf, offset=6)
+                seq, = struct.unpack_from('!H', buffer=buf, offset=6)
                 if seq <= len(results) and addr == results[seq][0]:
                     results[seq] = (addr, True)
             except Exception as e:
