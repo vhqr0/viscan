@@ -1,9 +1,8 @@
 import random
-import base64
 
 import scapy.all as sp
 
-from typing import Optional, Dict, List
+from typing import Optional, List
 
 from .tcp_scanners import NmapTCPOpenScanner
 
