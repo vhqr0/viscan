@@ -45,7 +45,7 @@ class AddrGenerator:
         addr, diff = self.resolve(res[1]), int(res[2])
         network = ipaddress.IPv6Network(f'{addr}/{diff}', strict=False)
         for addr in network:
-            self.add_addr(addr)
+            self.add_addr(str(addr))
         return True
 
     def try_add_range_addrs(self, addr_str: str) -> bool:
