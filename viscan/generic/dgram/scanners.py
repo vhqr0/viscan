@@ -19,7 +19,7 @@ class DgramScanner(GenericScanMixin[DgramPkt, DgramPkt], BaseScanner):
 
     logger = logging.getLogger('dgram_scanner')
 
-    def __init__(self, sock: Optional[socket.socket], **kwargs):
+    def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
         if sock is None:
             sock = self.get_sock()
             self.prepare_sock(sock)
