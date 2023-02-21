@@ -19,6 +19,10 @@ class DgramScanner(GenericScanMixin[DgramPkt, DgramPkt], BaseScanner):
 
     logger = logging.getLogger('dgram_scanner')
 
+    sock_family: int = socket.AF_INET6
+    sock_type: int = socket.SOCK_RAW
+    sock_proto: int = socket.IPPROTO_ICMPV6
+
     def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
         if sock is None:
             sock = self.get_sock()
@@ -27,7 +31,7 @@ class DgramScanner(GenericScanMixin[DgramPkt, DgramPkt], BaseScanner):
         super().__init__(**kwargs)
 
     def get_sock(self) -> socket.socket:
-        raise NotImplementedError
+        return socket.socket(self.sock_family, self.sock_type, self.sock_proto)
 
     def prepare_sock(self, sock: socket.socket):
         sock.setblocking(False)

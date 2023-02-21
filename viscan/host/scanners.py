@@ -24,11 +24,6 @@ class HostScanner(DgramStatelessScanner):
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    def get_sock(self) -> socket.socket:
-        return socket.socket(family=socket.AF_INET6,
-                             type=socket.SOCK_RAW,
-                             proto=socket.IPPROTO_ICMPV6)
-
     def prepare_sock(self, sock: socket.socket):
         icmp6_filter = ICMP6Filter()
         icmp6_filter.setblockall()
