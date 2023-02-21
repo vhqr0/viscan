@@ -5,7 +5,7 @@ import ipaddress
 
 from typing import List, Set
 
-from ..defaults import MAX_TARGETS
+from ...defaults import MAX_TARGETS
 
 
 class AddrGenerator:

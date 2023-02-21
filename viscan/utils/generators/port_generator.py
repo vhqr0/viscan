@@ -2,7 +2,7 @@ import re
 
 from typing import List, Set
 
-from ..defaults import MAX_TARGETS
+from ...defaults import MAX_TARGETS
 
 
 class PortGenerator:

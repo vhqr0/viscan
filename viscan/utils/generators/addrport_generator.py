@@ -1,6 +1,6 @@
 from typing import Tuple, List
 
-from ..defaults import MAX_TARGETS
+from ...defaults import MAX_TARGETS
 from .addr_generator import AddrGenerator
 from .port_generator import PortGenerator
 
