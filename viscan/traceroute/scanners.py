@@ -53,10 +53,9 @@ class TracerouteScanner(DgramStatefulScanner):
                             self.tr_results.append(addr)
                             break
                     if ietype == ICMP6_TIME_EXCEEDED:  # continue
-                        buf = buf[8:]
-                        if buf == self.pkts[0][:len(buf)]:
-                            self.tr_results.append(addr)
-                            break
+                        # TODO: deeper analysis
+                        self.tr_results.append(addr)
+                        break
                 else:  # no useful results
                     self.tr_results.append(None)
                 self.results.clear()
