@@ -8,7 +8,7 @@ from ...defaults import (
     TIMEWAIT,
     INTERVAL,
 )
-from ...generators import AddrGenerator
+from ...utils.generators import AddrGenerator
 from .nmap_scanner import NmapScanner
 
 
