@@ -85,5 +85,5 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
 
     def init_send_loop(self):
         self.tr_round = 0
-        self.tr_results.clear()
+        self.tr_results = []
         super().init_send_loop()
