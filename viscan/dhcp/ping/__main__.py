@@ -7,7 +7,7 @@ from ...defaults import (
     INTERVAL,
 )
 from ...utils.generators import AddrGenerator
-from .pinger import DHCPPinger
+from .scanners import DHCPPinger
 
 
 def main():

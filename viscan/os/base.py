@@ -63,6 +63,9 @@ class OSBaseFingerPrinter(BaseScanner):
         self.kwargs = kwargs
         self.results = dict()
 
+    def parse(self) -> Dict[str, Optional[str]]:
+        return self.results
+
     # override BaseScanner
     def scan(self):
         self.results.clear()

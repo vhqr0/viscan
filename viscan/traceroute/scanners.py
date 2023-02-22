@@ -34,6 +34,9 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
 
+    def parse(self) -> List[Optional[str]]:
+        return self.tr_results
+
     # override DgramScanMixin
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         buf = struct.pack('!BBHHH', ICMP6_ECHO_REQ, 0, 0, self.ieid,

@@ -45,6 +45,9 @@ class DNSScanner(BaseScanner):
         self.results = []
         super().__init__(**kwargs)
 
+    def parse(self) -> List[str]:
+        return self.results
+
     # override BaseScanner
     def scan(self):
         self.results.clear()

@@ -35,7 +35,7 @@ def main():
                                 interval=interval)
 
     scanner.scan()
-    results = scanner.tr_results
+    results = scanner.parse()
 
     if output is not None:
         json.dump(results, open(output, 'w'))

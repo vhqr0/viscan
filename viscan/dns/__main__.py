@@ -34,7 +34,7 @@ def main():
                          no_recursive=no_recursive,
                          skip_check_autogen=skip_check_autogen)
     scanner.scan()
-    results = scanner.results
+    results = scanner.parse()
 
     if output is not None:
         json.dump(results, open(output, 'w'))

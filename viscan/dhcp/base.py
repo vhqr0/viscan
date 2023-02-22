@@ -13,8 +13,9 @@ class DHCPBaseScanner(UDPSockMixin, DgramScanMixin, DgramScanner):
     target: str
     duid: dhcp6.DUID_LL
 
-    # override
+    # override DgramScanner
     logger = logging.getLogger('dhcp_scanner')
+    # override UDPSockMixin
     udp_addr = ('::', 547)
 
     def __init__(self, target: str, **kwargs):
