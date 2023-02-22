@@ -184,7 +184,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
                 tcppkt = ippkt[sp.TCP]
                 j = tcppkt.ack - self.initial_seq - 1
                 if 0 <= j < 6:
-                    results[3 * i + j] = sp.raw(ippkt)
+                    results[6 * i + j] = sp.raw(ippkt)
                 else:
                     self.logger.warning('invalid ack number')
         return results
