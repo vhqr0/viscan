@@ -12,7 +12,6 @@ from ...defaults import (
 
 class BaseScanner:
     done: bool
-    exc: Optional[Exception]
 
     retry: int
     timewait: float
@@ -22,7 +21,6 @@ class BaseScanner:
 
     def __init__(self, retry=RETRY, timewait=TIMEWAIT, interval=INTERVAL):
         self.done = False
-        self.exc = None
 
         self.retry = retry
         self.timewait = timewait
@@ -30,25 +28,26 @@ class BaseScanner:
 
     def scan(self):
         self.done = False
-        self.exc = None
 
-        receiver = threading.Thread(target=self.receiver)
+        receiver = threading.Thread(target=self.receive_loop)
         receiver.start()
 
+        exc: Optional[Exception] = None
+
         try:
-            self.sender()
+            self.send_loop()
         except Exception as e:
-            self.exc = e
+            exc = e
             self.logger.error('except while scanning: %s', e)
         finally:
             self.done = True
             receiver.join()
 
-        if self.exc is not None:
-            raise self.exc
+        if exc is not None:
+            raise exc
 
-    def sender(self):
+    def send_loop(self):
         raise NotImplementedError
 
-    def receiver(self):
+    def receive_loop(self):
         raise NotImplementedError

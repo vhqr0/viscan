@@ -56,20 +56,20 @@ class GenericScanMixin(Generic[PktType, ResultType]):
     def send_pkts_stop_retry(self):
         return len(self.results) != 0
 
-    def init_sender(self):
+    def init_send_loop(self):
         self.results = []
         self.pkts = []
         self.pkts_idx = -1
         self.pkts_prepared = False
 
-    def stateless_sender(self):
-        self.init_sender()
+    def stateless_send_loop(self):
+        self.init_send_loop()
         if not self.prepare_pkts():
             raise RuntimeError('not pkts prepared')
         self.send_pkts_with_interval()
 
-    def stateful_sender(self):
-        self.init_sender()
+    def stateful_send_loop(self):
+        self.init_send_loop()
         self.send_pkts_with_retry()
 
     def lfilter(self, result: ResultType) -> bool:
@@ -82,11 +82,11 @@ class GenericScanMixin(Generic[PktType, ResultType]):
 
 class StatelessScanMixin:
 
-    def sender(self):
-        self.stateless_sender()
+    def send_loop(self):
+        self.stateless_send_loop()
 
 
 class StatefulScanMixin:
 
-    def sender(self):
-        self.stateful_sender()
+    def send_loop(self):
+        self.stateful_send_loop()

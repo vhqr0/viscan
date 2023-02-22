@@ -43,7 +43,7 @@ class PcapScanner(GenericScanMixin[sp.IPv6, bytes], BaseScanner):
         sniffer.setnonblock()
         return sniffer
 
-    def receiver(self):
+    def receive_loop(self):
         sniffer = self.get_sniffer()
         while not self.done:
             rlist, _, _ = select.select([sniffer.fd], [], [], 1)

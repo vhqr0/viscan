@@ -40,7 +40,7 @@ class DgramScanner(GenericScanMixin[DgramPkt, DgramPkt], BaseScanner):
         addr, port, buf = pkt
         self.sock.sendto(buf, (addr, port))
 
-    def receiver(self):
+    def receive_loop(self):
         while not self.done:
             rlist, _, _ = select.select([self.sock], [], [], 1)
             if rlist:

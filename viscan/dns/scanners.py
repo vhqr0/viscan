@@ -46,7 +46,6 @@ class DNSScanner(BaseScanner):
 
     def scan(self):
         self.results.clear()
-        self.exc = None
 
         try:
             if not self.skip_check_autogen and self.check_autogen():
@@ -54,7 +53,6 @@ class DNSScanner(BaseScanner):
             self.traversal(self.basename)
         except Exception as e:
             self.logger.error('except while scanning: %s', e)
-            self.exc = e
             raise
 
     def traversal(self, name):
