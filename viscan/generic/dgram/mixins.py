@@ -72,12 +72,12 @@ class ICMP6SockMixin(SockMixin):
 
     # override SockMixin
     def prepare_sock(self, sock: socket.socket):
-        super().prepare_sock()
         icmp6_filter = ICMP6Filter()
         icmp6_filter.setblockall()
         for icmp6_type in self.get_icmp6_whitelist():
             icmp6_filter.setpass(icmp6_type)
         icmp6_filter.setsockopt(sock)
+        super().prepare_sock(sock)
 
 
 class UDPSockMixin(SockMixin):
@@ -91,5 +91,5 @@ class UDPSockMixin(SockMixin):
 
     # override SockMixin
     def prepare_sock(self, sock: socket.socket):
-        super().prepare_sock()
         sock.bind(self.get_udp_addr())
+        super().prepare_sock(sock)
