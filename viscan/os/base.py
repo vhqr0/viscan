@@ -3,12 +3,13 @@ import logging
 
 import scapy.all as sp
 
-from typing import Optional, Dict, List
+from typing import Any, Type, Optional, List, Dict
 
+from ..generic.base import BaseScanner
 from ..generic.pcap import PcapScanner, PcapScanMixin, FilterMixin
 
 
-class OSScanner(FilterMixin, PcapScanMixin, PcapScanner):
+class OSBaseScanner(FilterMixin, PcapScanMixin, PcapScanner):
     target: str
     open_port: Optional[int]
     closed_port: Optional[int]
@@ -47,3 +48,29 @@ class OSScanner(FilterMixin, PcapScanMixin, PcapScanner):
                     fp[name] = base64.b64encode(result).decode()
         except Exception as e:
             self.logger.error('except while parsing: %s', e)
+
+
+class OSBaseFingerPrinter(BaseScanner):
+    kwargs: Dict[str, Any]
+    results: Dict[str, Optional[str]]
+
+    # override BaseScanner
+    logger = logging.getLogger('os_finger_printer')
+
+    scanner_clses: List[Type[OSBaseScanner]] = []
+
+    def __init__(self, **kwargs):
+        self.kwargs = kwargs
+        self.results = dict()
+
+    # override BaseScanner
+    def scan(self):
+        self.results.clear()
+
+        for scanner_cls in self.scanner_clses:
+            try:
+                scanner = scanner_cls(**self.kwargs)
+                scanner.scan()
+                scanner.update_fp(self.results)
+            except Exception as e:
+                self.logger.error('except while scanning: %s', e)

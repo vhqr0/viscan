@@ -32,8 +32,6 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         self.target = target
         self.limit = limit
         self.ieid = random.getrandbits(16)
-        self.tr_round = 0
-        self.tr_results = []
         super().__init__(**kwargs)
 
     # override DgramScanMixin
@@ -81,3 +79,8 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         cmsg = [(socket.IPPROTO_IPV6, socket.IPV6_HOPLIMIT,
                  struct.pack('@I', self.tr_round))]
         self.sock.sendmsg([buf], cmsg, 0, (addr, 0))
+
+    def init_send_loop(self):
+        self.tr_round = 0
+        self.tr_results.clear()
+        super().init_send_loop()

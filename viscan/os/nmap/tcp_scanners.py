@@ -5,14 +5,14 @@ import scapy.all as sp
 
 from typing import Optional, Any, List, Mapping
 
-from ..base import OSScanner
+from ..base import OSBaseScanner
 
 
-class NmapTCPBaseScanner(OSScanner):
+class _NmapTCPBaseScanner(OSBaseScanner):
     target_port: int
     port: int
 
-    # override
+    # override OSBaseScanner
     logger = logging.getLogger('tcp_scanner')
     filter_template = 'ip6 and ' \
         'tcp dst port {port} and ' \
@@ -25,28 +25,28 @@ class NmapTCPBaseScanner(OSScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    # override
+    # override OSBaseScanner
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'port': self.port, 'target_port': self.target_port}
 
 
-class NmapTCPOpenScanner(NmapTCPBaseScanner):
+class _NmapTCPOpenScanner(_NmapTCPBaseScanner):
 
     def __init__(self, open_port: Optional[int] = None, **kwargs):
         super().__init__(target_port=open_port, **kwargs)
 
 
-class NmapTCPClosedScanner(NmapTCPBaseScanner):
+class _NmapTCPClosedScanner(_NmapTCPBaseScanner):
 
     def __init__(self, closed_port: Optional[int] = None, **kwargs):
         super().__init__(target_port=closed_port, **kwargs)
 
 
-class NmapTECNScanner(NmapTCPOpenScanner):
-    # override
+class NmapTECNScanner(_NmapTCPOpenScanner):
+    # override OSBaseScanner
     fp_names = ['TECN']
 
-    # override
+    # override OSBaseScanner
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
@@ -66,6 +66,136 @@ class NmapTECNScanner(NmapTCPOpenScanner):
         return [pkt]
 
 
+class NmapT1Scanner(_NmapTCPOpenScanner):
+    initial_seq: int
+    syn_round: int
+    syn_results: List[List[bytes]]
+
+    # override OSBaseScanner
+    fp_names = [
+        'S1#1',
+        'S2#1',
+        'S3#1',
+        'S4#1',
+        'S5#1',
+        'S6#1',
+        'S1#2',
+        'S2#2',
+        'S3#2',
+        'S4#2',
+        'S5#2',
+        'S6#2',
+        'S1#3',
+        'S2#3',
+        'S3#3',
+        'S4#3',
+        'S5#3',
+        'S6#3',
+    ]
+
+    tcp_args = [
+        # S1
+        (1, [
+            ('WScale', 10),
+            ('NOP', None),
+            ('MSS', 1460),
+            ('Timestamp', (0xffffffff, 0)),
+            ('SAckOK', b''),
+        ]),
+        # S2
+        (63, [
+            ('MSS', 1400),
+            ('WScale', 0),
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+            ('EOL', None),
+        ]),
+        # S3
+        (4, [
+            ('Timestamp', (0xffffffff, 0)),
+            ('NOP', None),
+            ('NOP', None),
+            ('WScale', 5),
+            ('NOP', None),
+            ('MSS', 640),
+        ]),
+        # S4
+        (4, [
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+            ('WScale', 10),
+            ('EOL', None),
+        ]),
+        # S5
+        (16, [
+            ('MSS', 536),
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+            ('WScale', 10),
+            ('EOL', None),
+        ]),
+        # S6
+        (512, [
+            ('MSS', 265),
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+        ]),
+    ]
+
+    def __init__(self, **kwargs):
+        self.initial_seq = random.getrandbits(31)
+        super().__init__(**kwargs)
+        self.interval = 0.1  # force 0.1s
+
+    # override OSBaseScanner
+    def get_pkts(self) -> List[sp.IPv6]:
+        pkts = []
+        for i, arg in enumerate(self.tcp_args):
+            window, opts = arg
+            pkt = sp.IPv6(dst=self.target) / \
+                sp.TCP(sport=self.port,
+                       dport=self.target_port,
+                       seq=self.initial_seq+i,
+                       flags='S',
+                       window=window,
+                       options=opts)
+            pkts.append(pkt)
+        return pkts
+
+    # override OSBaseScanner
+    def prepare_pkts(self) -> bool:
+        if self.syn_round >= 0:
+            self.syn_results[self.syn_round] = self.results
+            self.results = []   # Notice: new list
+
+        self.syn_round += 1
+        if self.syn_round >= 3:
+            return False
+
+        self.pkts_prepared = False
+        return super().prepare_pkts()
+
+    # override OSBaseScanner
+    def parse(self) -> List[Optional[bytes]]:
+        results: List[Optional[bytes]] = [None for _ in range(18)]
+        for i in range(3):
+            for buf in self.syn_results[i]:
+                ippkt = sp.Ether(buf)[sp.IPv6]
+                tcppkt = ippkt[sp.TCP]
+                j = tcppkt.ack - self.initial_seq - 1
+                if 0 <= j < 6:
+                    results[3 * i + j] = sp.raw(ippkt)
+                else:
+                    self.logger.warning('invalid ack number')
+        return results
+
+    # override OSBaseScanner
+    def init_send_loop(self):
+        self.syn_round = -1
+        self.syn_results = [[] for _ in range(3)]
+        super().init_send_loop()
+
+
 class _NmapTCPFlagsWindowMixin:
     target: str
     target_port: int
@@ -74,7 +204,7 @@ class _NmapTCPFlagsWindowMixin:
     flags: str = ''
     window: int = 0
 
-    # override
+    # override mixin OSBaseScanner
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
@@ -85,42 +215,36 @@ class _NmapTCPFlagsWindowMixin:
         return [pkt]
 
 
-class NmapT2Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
-    # override
+class NmapT2Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPOpenScanner):
     fp_names = ['T2']
     window = 128
 
 
-class NmapT3Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
-    # override
+class NmapT3Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPOpenScanner):
     fp_names = ['T3']
     flags = 'FSPU'
     window = 256
 
 
-class NmapT4Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
-    # override
+class NmapT4Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPOpenScanner):
     fp_names = ['T4']
     flags = 'A'
     window = 1024
 
 
-class NmapT5Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
-    # override
+class NmapT5Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPClosedScanner):
     fp_names = ['T5']
     flags = 'S'
     window = 31337
 
 
-class NmapT6Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
-    # override
+class NmapT6Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPClosedScanner):
     fp_names = ['T6']
     flags = 'A'
     window = 32768
 
 
-class NmapT7Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
-    # override
+class NmapT7Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPClosedScanner):
     fp_names = ['T7']
     flags = 'FPU'
     window = 65535

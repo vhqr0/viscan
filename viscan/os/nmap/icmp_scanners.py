@@ -4,12 +4,12 @@ import scapy.all as sp
 
 from typing import Any, List, Mapping
 
-from ..base import OSScanner
+from ..base import OSBaseScanner
 
 Pad4 = sp.PadN(optdata=b'\x00\x00\x00\x00')
 
 
-class NmapU1Scanner(OSScanner):
+class NmapU1Scanner(OSBaseScanner):
     port: int
 
     # override
@@ -37,7 +37,7 @@ class NmapU1Scanner(OSScanner):
         return pkts
 
 
-class NmapIE1Scanner(OSScanner):
+class NmapIE1Scanner(OSBaseScanner):
     ieid: int
 
     # override
@@ -65,7 +65,7 @@ class NmapIE1Scanner(OSScanner):
         return [pkt]
 
 
-class NmapIE2Scanner(OSScanner):
+class NmapIE2Scanner(OSBaseScanner):
     ieid: int
 
     # override

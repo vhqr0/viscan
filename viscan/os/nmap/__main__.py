@@ -9,7 +9,7 @@ from ...defaults import (
     INTERVAL,
 )
 from ...utils.generators import AddrGenerator
-from .nmap_scanner import NmapScanner
+from .scanners import NmapFingerPrinter
 
 
 def main():
@@ -35,12 +35,12 @@ def main():
 
     sp.conf.iface = iface
 
-    scanner = NmapScanner(target=target,
-                          open_port=open_port,
-                          closed_port=closed_port,
-                          retry=retry,
-                          timewait=timewait,
-                          interval=interval)
+    scanner = NmapFingerPrinter(target=target,
+                                open_port=open_port,
+                                closed_port=closed_port,
+                                retry=retry,
+                                timewait=timewait,
+                                interval=interval)
 
     scanner.scan()
     results = scanner.results
