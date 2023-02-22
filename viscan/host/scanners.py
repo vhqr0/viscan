@@ -4,7 +4,7 @@ import logging
 
 from typing import Tuple, List
 
-from ..generic import DgramScanner, DgramScanMixin, ICMP6SockMixin
+from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
 from ..utils.icmp6_filter import ICMP6_ECHO_REQ
 
 
@@ -12,7 +12,7 @@ class HostScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
     targets: List[str]
     ieid: int
 
-    # override
+    # override DgramScanner
     logger = logging.getLogger('host_scanner')
 
     def __init__(self, targets: List[str], **kwargs):
@@ -20,7 +20,7 @@ class HostScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    # override
+    # override DgramScanMixin
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         pkts = []
         for seq, target in enumerate(self.targets):
@@ -29,7 +29,7 @@ class HostScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
             pkts.append((target, 0, buf))
         return pkts
 
-    # override
+    # override DgramScanMixin
     def lfilter(self, pkt: Tuple[str, int, bytes]) -> bool:
         ieid, = struct.unpack_from('!H', buffer=pkt[2], offset=4)
         return ieid == self.ieid

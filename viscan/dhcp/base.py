@@ -6,7 +6,7 @@ import scapy.layers.dhcp6 as dhcp6
 
 from typing import Optional
 
-from ..generic import DgramScanner, DgramScanMixin, UDPSockMixin
+from ..generic.dgram import DgramScanner, DgramScanMixin, UDPSockMixin
 
 
 class DHCPBaseScanner(UDPSockMixin, DgramScanMixin, DgramScanner):

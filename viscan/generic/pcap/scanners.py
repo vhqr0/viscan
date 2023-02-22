@@ -1,8 +1,8 @@
 import scapy.all as sp
 
-from typing import Optional
+from typing import Optional, Callable
 
-from ..base import BaseScanner
+from ..base import BaseScanner, MixinForBaseScanner
 
 
 class PcapScanner(BaseScanner):
@@ -19,3 +19,10 @@ class PcapScanner(BaseScanner):
 
     def get_filter(self) -> str:
         raise NotImplementedError
+
+
+class MixinForPcapScanner(MixinForBaseScanner):
+    iface: str
+    filter: str
+    get_iface: Callable[[], str]
+    get_filter: Callable[[], str]

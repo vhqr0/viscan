@@ -5,7 +5,7 @@ import scapy.all as sp
 
 from typing import Optional, Dict, List
 
-from ..generic import PcapScanner, PcapScanMixin, FilterMixin
+from ..generic.pcap import PcapScanner, PcapScanMixin, FilterMixin
 
 
 class OSScanner(FilterMixin, PcapScanMixin, PcapScanner):
@@ -13,9 +13,10 @@ class OSScanner(FilterMixin, PcapScanMixin, PcapScanner):
     open_port: Optional[int]
     closed_port: Optional[int]
 
-    # override
-    stateless = False
+    # override PcapScanner
     logger = logging.getLogger('os_scanner')
+    # override PcapScanMixin
+    stateless = False
 
     fp_names: List[str] = []
 

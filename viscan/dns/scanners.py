@@ -23,6 +23,7 @@ class DNSScanner(BaseScanner):
     SUFFIX = 'ip6.arpa.'
     SUFFIXLEN = len(SUFFIX)
 
+    # override BaseScanner
     logger = logging.getLogger('dns_scanner')
 
     def __init__(
@@ -44,6 +45,7 @@ class DNSScanner(BaseScanner):
         self.results = []
         super().__init__(**kwargs)
 
+    # override BaseScanner
     def scan(self):
         self.results.clear()
 
@@ -69,7 +71,7 @@ class DNSScanner(BaseScanner):
         for _ in range(16):
             a = '.'.join(random.randbytes(16).hex())
             name = f'{a}.{self.basename}'
-            name = name[:64+self.SUFFIXLEN]
+            name = name[:64 + self.SUFFIXLEN]
             if self.query_noerror(name):
                 c += 1
                 if c >= 4:

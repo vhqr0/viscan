@@ -1,8 +1,8 @@
 import socket
 
-from typing import Optional
+from typing import Optional, Callable
 
-from ..base import BaseScanner
+from ..base import BaseScanner, MixinForBaseScanner
 
 
 class DgramScanner(BaseScanner):
@@ -14,3 +14,8 @@ class DgramScanner(BaseScanner):
 
     def get_sock(self) -> socket.socket:
         raise NotImplementedError
+
+
+class MixinForDgramScanner(MixinForBaseScanner):
+    sock: socket.socket
+    get_sock: Callable[[], socket.socket]

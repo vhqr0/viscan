@@ -1,5 +1,7 @@
 import logging
 
+from typing import Callable
+
 from ...defaults import (
     RETRY,
     TIMEWAIT,
@@ -28,3 +30,11 @@ class BaseScanner:
 
     def scan(self):
         raise NotImplementedError
+
+
+class MixinForBaseScanner:
+    retry: int
+    timewait: float
+    interval: float
+    logger: logging.Logger
+    scan: Callable

@@ -2,18 +2,14 @@ import time
 import threading
 
 from typing import Generic, TypeVar, Optional, List
-from logging import Logger
+
+from .scanners import MixinForBaseScanner
 
 PktType = TypeVar('PktType')
 ResultType = TypeVar('ResultType')
 
 
-class GenericSendMixin(Generic[PktType]):
-    # protocol
-    retry: int
-    timewait: float
-    interval: float
-
+class GenericSendMixin(Generic[PktType], MixinForBaseScanner):
     pkts: List[PktType]
     pkts_idx: int
     pkts_prepared: bool
@@ -73,7 +69,7 @@ class GenericSendMixin(Generic[PktType]):
             self.stateful_send_loop()
 
 
-class GenericReceiveMixin(Generic[ResultType]):
+class GenericReceiveMixin(Generic[ResultType], MixinForBaseScanner):
     results: List[ResultType]
 
     def lfilter(self, result: ResultType) -> bool:
@@ -92,12 +88,9 @@ class GenericReceiveMixin(Generic[ResultType]):
 
 class GenericScanMixin(GenericSendMixin[PktType],
                        GenericReceiveMixin[ResultType]):
-    # protocol
-    logger: Logger
-
     done: bool
 
-    # override
+    # override GenericSendMixin
     def send_pkts_stop_retry(self):
         return len(self.results) != 0
 
@@ -106,7 +99,7 @@ class GenericScanMixin(GenericSendMixin[PktType],
         self.init_send_loop()
         self.init_receive_loop()
 
-    # override protocol
+    # override mixin BaseScanner
     def scan(self):
         self.init_scan()
 
