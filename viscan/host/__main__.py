@@ -25,7 +25,7 @@ def main():
                 continue
             addrs.append(line)
 
-    targets = AddrGenerator(addrs).addrs
+    targets = list(AddrGenerator(addrs).addrs)
     scanner = HostScanner(targets, interval=interval)
     scanner.scan()
     results = scanner.parse()

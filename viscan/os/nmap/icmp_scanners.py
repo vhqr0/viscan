@@ -2,7 +2,7 @@ import random
 
 import scapy.all as sp
 
-from typing import List
+from typing import Any, List, Mapping
 
 from ..base import OSScanner
 
@@ -12,19 +12,21 @@ Pad4 = sp.PadN(optdata=b'\x00\x00\x00\x00')
 class NmapU1Scanner(OSScanner):
     port: int
 
-    fp_names = ['U1']
-
-    filter_tpl = 'ip6 src {} and ' \
+    # override
+    filter_template = 'ip6 src {target} and ' \
         'icmp6[icmp6type]==icmp6-destinationunreach and ' \
         'icmp6[icmp6code]==4'
+    fp_names = ['U1']
 
     def __init__(self, **kwargs):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    def get_filter(self) -> str:
-        return self.filter_tpl.format(self.target)
+    # override
+    def get_filter_context(self) -> Mapping[str, Any]:
+        return {'target': self.target}
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for _ in range(3):
@@ -38,19 +40,21 @@ class NmapU1Scanner(OSScanner):
 class NmapIE1Scanner(OSScanner):
     ieid: int
 
-    fp_names = ['IE1']
-
-    filter_tpl = 'ip6 src {} and ' \
+    # override
+    filter_template = 'ip6 src {target} and ' \
         'icmp6[icmp6type]==icmp6-echoreply and ' \
-        'icmp6[4:2]=={}'
+        'icmp6[4:2]=={ieid}'
+    fp_names = ['IE1']
 
     def __init__(self, **kwargs):
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    def get_filter(self) -> str:
-        return self.filter_tpl.format(self.target, self.ieid)
+    # override
+    def get_filter_context(self) -> Mapping[str, Any]:
+        return {'target': self.target, 'ieid': self.ieid}
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.IPv6ExtHdrHopByHop(options=[Pad4]) / \
@@ -64,14 +68,14 @@ class NmapIE1Scanner(OSScanner):
 class NmapIE2Scanner(OSScanner):
     ieid: int
 
-    fp_names = ['IE2']
-
+    # override
     # Notice: icmpv6 parameter problem need deeper analysis
-    filter_tpl = 'ip6 src {} and ' \
+    filter_template = 'ip6 src {target} and ' \
         '(' \
-        ' (icmp6[icmp6type]==icmp6-echoreply and icmp6[4:2]=={}) or ' \
+        ' (icmp6[icmp6type]==icmp6-echoreply and icmp6[4:2]=={ieid}) or ' \
         ' icmp6[icmp6type]==icmp6-parameterproblem' \
         ')'
+    fp_names = ['IE2']
 
     def __init__(self, **kwargs):
         self.ieid = random.getrandbits(16)
@@ -81,9 +85,11 @@ class NmapIE2Scanner(OSScanner):
     # def parse(self) -> List[Optional[bytes]]:
     #     pass
 
-    def get_filter(self) -> str:
-        return self.filter_tpl.format(self.target, self.ieid)
+    # override
+    def get_filter_context(self) -> Mapping[str, Any]:
+        return {'target': self.target, 'ieid': self.ieid}
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.IPv6ExtHdrHopByHop(options=[Pad4]) / \

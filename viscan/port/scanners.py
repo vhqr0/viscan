@@ -3,22 +3,25 @@ import logging
 
 import scapy.all as sp
 
-from typing import Tuple, List
+from typing import Any, Tuple, List, Mapping
 
-from ..generic import PcapStatelessScanner
+from ..generic import PcapScanner, PcapScanMixin, FilterMixin
 
 
-class PortScanner(PcapStatelessScanner):
+class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
     targets: List[Tuple[str, int]]
     port: int
 
+    # override
     logger = logging.getLogger('port_scanner')
+    filter_template = 'ip6 and tcp dst port {port}'
 
     def __init__(self, targets: List[Tuple[str, int]], **kwargs):
         self.targets = targets
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for target in self.targets:
@@ -32,8 +35,9 @@ class PortScanner(PcapStatelessScanner):
             pkts.append(pkt)
         return pkts
 
-    def get_filter(self) -> str:
-        return f'ip6 and tcp dst port {self.port}'
+    # override
+    def get_filter_context(self) -> Mapping[str, Any]:
+        return {'port': self.port}
 
     def parse(self) -> List[Tuple[str, int, str]]:
         results = []

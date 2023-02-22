@@ -1,3 +1,4 @@
 # flake8: noqa
 
-from .scanners import PcapStatelessScanner, PcapStatefulScanner
+from .scanners import PcapScanner
+from .mixins import PcapScanMixin, FilterMixin

@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-mypy -m viscan.all
+mypy --check-untyped-defs -m viscan.all

@@ -6,15 +6,16 @@ from typing import Optional, Dict, Tuple, List
 import scapy.all as sp
 import scapy.layers.dhcp6 as dhcp6
 
-from ...generic.base.mixins import StatefulScanMixin
 from ..base import DHCPBaseScanner
 
 
-class DHCPPinger(StatefulScanMixin, DHCPBaseScanner):
+class DHCPPinger(DHCPBaseScanner):
     dhcp_reply: Optional[dhcp6.DHCP6_Reply]
     dhcp_advertise: Optional[dhcp6.DHCP6_Advertise]
 
+    # override
     logger = logging.getLogger('dhcp_pinger')
+    stateless = False
 
     def __init__(self, **kwargs):
         self.dhcp_reply = None
@@ -22,7 +23,7 @@ class DHCPPinger(StatefulScanMixin, DHCPBaseScanner):
         super().__init__(**kwargs)
 
     def parse(self) -> Dict[str, Optional[str]]:
-        results = {'addr': self.target}
+        results: Dict[str, Optional[str]] = {'addr': self.target}
         for name, msg in [('inforeq', self.dhcp_reply),
                           ('solicit', self.dhcp_advertise)]:
             if msg is None:
@@ -31,11 +32,13 @@ class DHCPPinger(StatefulScanMixin, DHCPBaseScanner):
                 results[name] = base64.b64encode(sp.raw(msg)).decode()
         return results
 
+    # override
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         buf1 = self.build_inforeq(trid=1)
         buf2 = self.build_solicit(trid=2)
         return [(self.target, 547, buf1), (self.target, 547, buf2)]
 
+    # override
     def send_pkts_stop_retry(self) -> bool:
         for pkt in self.results:
             addr, port, buf = pkt
@@ -62,7 +65,8 @@ class DHCPPinger(StatefulScanMixin, DHCPBaseScanner):
         return self.dhcp_reply is not None and \
             self.dhcp_advertise is not None
 
-    def run(self):
+    # override
+    def init_send_loop(self):
         self.dhcp_reply = None
         self.dhcp_advertise = None
-        super().run()
+        super().init_send_loop()

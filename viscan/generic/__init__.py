@@ -1,4 +1,4 @@
 # flake8: noqa
 
-from .pcap import PcapStatelessScanner, PcapStatefulScanner
-from .dgram import DgramStatelessScanner, DgramStatefulScanner
+from .pcap import PcapScanner, PcapScanMixin, FilterMixin
+from .dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin, UDPSockMixin

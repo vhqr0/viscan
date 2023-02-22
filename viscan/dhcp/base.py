@@ -1,5 +1,4 @@
 import random
-import socket
 import logging
 
 import scapy.all as sp
@@ -7,26 +6,21 @@ import scapy.layers.dhcp6 as dhcp6
 
 from typing import Optional
 
-from ..generic.dgram.scanners import DgramScanner
+from ..generic import DgramScanner, DgramScanMixin, UDPSockMixin
 
 
-class DHCPBaseScanner(DgramScanner):
+class DHCPBaseScanner(UDPSockMixin, DgramScanMixin, DgramScanner):
     target: str
     duid: dhcp6.DUID_LL
 
+    # override
     logger = logging.getLogger('dhcp_scanner')
-
-    sock_type = socket.SOCK_DGRAM
-    sock_proto = 0
+    udp_addr = ('::', 547)
 
     def __init__(self, target: str, **kwargs):
         self.target = target
         self.duid = dhcp6.DUID_LL(lladdr=random.randbytes(6))
         super().__init__(**kwargs)
-
-    def prepare_sock(self, sock: socket.socket):
-        sock.bind(('::', 547))
-        super().prepare_sock(sock)
 
     def build_inforeq(self,
                       linkaddr: Optional[str] = None,

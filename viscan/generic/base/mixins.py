@@ -1,26 +1,24 @@
 import time
+import threading
 
-from typing import Generic, TypeVar, List
-
-from ...defaults import (
-    RETRY,
-    TIMEWAIT,
-    INTERVAL,
-)
+from typing import Generic, TypeVar, Optional, List
+from logging import Logger
 
 PktType = TypeVar('PktType')
 ResultType = TypeVar('ResultType')
 
 
-class GenericScanMixin(Generic[PktType, ResultType]):
-    results: List[ResultType]
+class GenericSendMixin(Generic[PktType]):
+    # protocol
+    retry: int
+    timewait: float
+    interval: float
+
     pkts: List[PktType]
     pkts_idx: int
     pkts_prepared: bool
 
-    retry: int = RETRY
-    timewait: float = TIMEWAIT
-    interval: float = INTERVAL
+    stateless: bool = True
 
     def get_pkts(self) -> List[PktType]:
         raise NotImplementedError
@@ -46,31 +44,37 @@ class GenericScanMixin(Generic[PktType, ResultType]):
             time.sleep(self.interval)
 
     def send_pkts_with_retry(self):
-        while self.prepare_pkts():
-            for _ in range(self.retry):
-                self.send_pkts_with_interval()
-                time.sleep(self.timewait)
-                if self.send_pkts_stop_retry():
-                    break
+        for _ in range(self.retry):
+            self.send_pkts_with_interval()
+            time.sleep(self.timewait)
+            if self.send_pkts_stop_retry():
+                break
 
-    def send_pkts_stop_retry(self):
-        return len(self.results) != 0
+    def send_pkts_stop_retry(self) -> bool:
+        raise NotImplementedError
 
     def init_send_loop(self):
-        self.results = []
         self.pkts = []
         self.pkts_idx = -1
         self.pkts_prepared = False
 
     def stateless_send_loop(self):
-        self.init_send_loop()
-        if not self.prepare_pkts():
-            raise RuntimeError('not pkts prepared')
-        self.send_pkts_with_interval()
+        if self.prepare_pkts():
+            self.send_pkts_with_interval()
 
     def stateful_send_loop(self):
-        self.init_send_loop()
-        self.send_pkts_with_retry()
+        while self.prepare_pkts():
+            self.send_pkts_with_retry()
+
+    def send_loop(self):
+        if self.stateless:
+            self.stateless_send_loop()
+        else:
+            self.stateful_send_loop()
+
+
+class GenericReceiveMixin(Generic[ResultType]):
+    results: List[ResultType]
 
     def lfilter(self, result: ResultType) -> bool:
         return True
@@ -79,14 +83,46 @@ class GenericScanMixin(Generic[PktType, ResultType]):
         if self.lfilter(result):
             self.results.append(result)
 
+    def init_receive_loop(self):
+        self.results = []
 
-class StatelessScanMixin:
-
-    def send_loop(self):
-        self.stateless_send_loop()
+    def receive_loop(self):
+        raise NotImplementedError
 
 
-class StatefulScanMixin:
+class GenericScanMixin(GenericSendMixin[PktType],
+                       GenericReceiveMixin[ResultType]):
+    # protocol
+    logger: Logger
 
-    def send_loop(self):
-        self.stateful_send_loop()
+    done: bool
+
+    # override
+    def send_pkts_stop_retry(self):
+        return len(self.results) != 0
+
+    def init_scan(self):
+        self.done = False
+        self.init_send_loop()
+        self.init_receive_loop()
+
+    # override protocol
+    def scan(self):
+        self.init_scan()
+
+        receiver = threading.Thread(target=self.receive_loop)
+        receiver.start()
+
+        exc: Optional[Exception] = None
+
+        try:
+            self.send_loop()
+        except Exception as e:
+            exc = e
+            self.logger.error('except while scanning: %s', e)
+        finally:
+            self.done = True
+            receiver.join()
+
+        if exc is not None:
+            raise exc

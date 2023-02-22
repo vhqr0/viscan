@@ -3,7 +3,7 @@ import logging
 
 import scapy.all as sp
 
-from typing import Optional, List
+from typing import Optional, Any, List, Mapping
 
 from ..base import OSScanner
 
@@ -12,11 +12,11 @@ class NmapTCPBaseScanner(OSScanner):
     target_port: int
     port: int
 
+    # override
     logger = logging.getLogger('tcp_scanner')
-
-    filter_tpl = 'ip6 and ' \
-        'tcp dst port {} and ' \
-        'tcp src port {}'
+    filter_template = 'ip6 and ' \
+        'tcp dst port {port} and ' \
+        'tcp src port {target_port}'
 
     def __init__(self, target_port: Optional[int], **kwargs):
         if target_port is None:
@@ -25,8 +25,9 @@ class NmapTCPBaseScanner(OSScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    def get_filter(self) -> str:
-        return self.filter_tpl.format(self.port, self.target_port)
+    # override
+    def get_filter_context(self) -> Mapping[str, Any]:
+        return {'port': self.port, 'target_port': self.target_port}
 
 
 class NmapTCPOpenScanner(NmapTCPBaseScanner):
@@ -42,8 +43,10 @@ class NmapTCPClosedScanner(NmapTCPBaseScanner):
 
 
 class NmapTECNScanner(NmapTCPOpenScanner):
+    # override
     fp_names = ['TECN']
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
@@ -68,9 +71,10 @@ class _NmapTCPFlagsWindowMixin:
     target_port: int
     port: int
 
-    flags = ''
-    window = 0
+    flags: str = ''
+    window: int = 0
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
@@ -82,35 +86,41 @@ class _NmapTCPFlagsWindowMixin:
 
 
 class NmapT2Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
+    # override
     fp_names = ['T2']
     window = 128
 
 
 class NmapT3Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
+    # override
     fp_names = ['T3']
     flags = 'FSPU'
     window = 256
 
 
 class NmapT4Scanner(_NmapTCPFlagsWindowMixin, NmapTCPOpenScanner):
+    # override
     fp_names = ['T4']
     flags = 'A'
     window = 1024
 
 
 class NmapT5Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
+    # override
     fp_names = ['T5']
     flags = 'S'
     window = 31337
 
 
 class NmapT6Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
+    # override
     fp_names = ['T6']
     flags = 'A'
     window = 32768
 
 
 class NmapT7Scanner(_NmapTCPFlagsWindowMixin, NmapTCPClosedScanner):
+    # override
     fp_names = ['T7']
     flags = 'FPU'
     window = 65535

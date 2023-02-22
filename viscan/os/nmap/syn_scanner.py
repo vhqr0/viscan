@@ -12,6 +12,7 @@ class NmapSynScanner(NmapTCPOpenScanner):
     syn_round: int
     syn_results: List[List[bytes]]
 
+    # override
     fp_names = [
         'S1#1',
         'S2#1',
@@ -89,6 +90,7 @@ class NmapSynScanner(NmapTCPOpenScanner):
         super().__init__(**kwargs)
         self.interval = 0.1  # force 0.1s
 
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for i, arg in enumerate(self.tcp_args):
@@ -103,6 +105,7 @@ class NmapSynScanner(NmapTCPOpenScanner):
             pkts.append(pkt)
         return pkts
 
+    # override
     def prepare_pkts(self) -> bool:
         if self.syn_round >= 0:
             self.syn_results[self.syn_round] = self.results
@@ -115,6 +118,7 @@ class NmapSynScanner(NmapTCPOpenScanner):
         self.pkts_prepared = False
         return super().prepare_pkts()
 
+    # override
     def parse(self) -> List[Optional[bytes]]:
         results: List[Optional[bytes]] = [None for _ in range(18)]
         for i in range(3):
