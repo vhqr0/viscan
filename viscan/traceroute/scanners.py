@@ -6,8 +6,8 @@ import logging
 from typing import Optional, Tuple, List
 
 from ..defaults import TRACEROUTE_LIMIT
-from ..utils.decorators import override
 from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
+from ..utils.decorators import override
 from ..utils.icmp6_filter import (
     ICMP6_TIME_EXCEEDED,
     ICMP6_ECHO_REQ,

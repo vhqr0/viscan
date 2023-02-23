@@ -6,6 +6,7 @@ import scapy.all as sp
 from typing import Any, Tuple, List, Mapping
 
 from ..generic.pcap import PcapScanner, PcapScanMixin, FilterMixin
+from ..utils.decorators import override
 
 
 class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
@@ -22,7 +23,7 @@ class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    # override PcapScanMixin
+    @override(PcapScanMixin)
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for target in self.targets:
@@ -36,7 +37,7 @@ class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
             pkts.append(pkt)
         return pkts
 
-    # override FilterMixin
+    @override(FilterMixin)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'port': self.port}
 

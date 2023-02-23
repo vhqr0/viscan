@@ -4,6 +4,7 @@ import scapy.all as sp
 
 from typing import Any, List, Mapping
 
+from ...utils.decorators import override
 from ..base import OSBaseScanner
 
 Pad4 = sp.PadN(optdata=b'\x00\x00\x00\x00')
@@ -22,11 +23,11 @@ class NmapU1Scanner(OSBaseScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    # override
+    @override(OSBaseScanner)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'target': self.target}
 
-    # override
+    @override(OSBaseScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for _ in range(3):
@@ -50,11 +51,11 @@ class NmapIE1Scanner(OSBaseScanner):
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    # override
+    @override(OSBaseScanner)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'target': self.target, 'ieid': self.ieid}
 
-    # override
+    @override(OSBaseScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.IPv6ExtHdrHopByHop(options=[Pad4]) / \
@@ -85,11 +86,11 @@ class NmapIE2Scanner(OSBaseScanner):
     # def parse(self) -> List[Optional[bytes]]:
     #     pass
 
-    # override
+    @override(OSBaseScanner)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'target': self.target, 'ieid': self.ieid}
 
-    # override
+    @override(OSBaseScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.IPv6ExtHdrHopByHop(options=[Pad4]) / \

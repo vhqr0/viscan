@@ -10,6 +10,7 @@ from typing import Optional, List
 
 from ..defaults import DNS_LIMIT
 from ..generic.base import BaseScanner
+from ..utils.decorators import override
 
 
 class DNSScanner(BaseScanner):
@@ -48,7 +49,7 @@ class DNSScanner(BaseScanner):
     def parse(self) -> List[str]:
         return self.results
 
-    # override BaseScanner
+    @override(BaseScanner)
     def scan(self):
         self.results.clear()
 

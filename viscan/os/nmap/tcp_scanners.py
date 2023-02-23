@@ -5,6 +5,7 @@ import scapy.all as sp
 
 from typing import Optional, Any, List, Mapping
 
+from ...utils.decorators import override
 from ..base import OSBaseScanner
 
 
@@ -25,7 +26,7 @@ class _NmapTCPBaseScanner(OSBaseScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    # override OSBaseScanner
+    @override(OSBaseScanner)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'port': self.port, 'target_port': self.target_port}
 
@@ -46,7 +47,7 @@ class NmapTECNScanner(_NmapTCPOpenScanner):
     # override OSBaseScanner
     fp_names = ['TECN']
 
-    # override OSBaseScanner
+    @override(_NmapTCPOpenScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
@@ -147,7 +148,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
         super().__init__(**kwargs)
         self.interval = 0.1  # force 0.1s
 
-    # override OSBaseScanner
+    @override(_NmapTCPOpenScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for i, arg in enumerate(self.tcp_args):
@@ -162,7 +163,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
             pkts.append(pkt)
         return pkts
 
-    # override OSBaseScanner
+    @override(_NmapTCPOpenScanner)
     def prepare_pkts(self) -> bool:
         if self.syn_round >= 0:
             self.syn_results[self.syn_round] = self.results
@@ -175,7 +176,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
         self.pkts_prepared = False
         return super().prepare_pkts()
 
-    # override OSBaseScanner
+    @override(_NmapTCPOpenScanner)
     def parse(self) -> List[Optional[bytes]]:
         results: List[Optional[bytes]] = [None for _ in range(18)]
         for i in range(3):
@@ -189,7 +190,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
                     self.logger.warning('invalid ack number')
         return results
 
-    # override OSBaseScanner
+    @override(_NmapTCPOpenScanner)
     def init_send_loop(self):
         self.syn_round = -1
         self.syn_results = [[] for _ in range(3)]

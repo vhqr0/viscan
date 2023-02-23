@@ -7,6 +7,7 @@ from typing import Any, Type, Optional, List, Dict
 
 from ..generic.base import BaseScanner
 from ..generic.pcap import PcapScanner, PcapScanMixin, FilterMixin
+from ..utils.decorators import override
 
 
 class OSBaseScanner(FilterMixin, PcapScanMixin, PcapScanner):
@@ -66,7 +67,7 @@ class OSBaseFingerPrinter(BaseScanner):
     def parse(self) -> Dict[str, Optional[str]]:
         return self.results
 
-    # override BaseScanner
+    @override(BaseScanner)
     def scan(self):
         self.results.clear()
 

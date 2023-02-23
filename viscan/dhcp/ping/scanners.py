@@ -6,6 +6,7 @@ from typing import Optional, Dict, Tuple, List
 import scapy.all as sp
 import scapy.layers.dhcp6 as dhcp6
 
+from ...utils.decorators import override
 from ..base import DHCPBaseScanner
 
 
@@ -32,13 +33,13 @@ class DHCPPinger(DHCPBaseScanner):
                 results[name] = base64.b64encode(sp.raw(msg)).decode()
         return results
 
-    # override DHCPBaseScanner
+    @override(DHCPBaseScanner)
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         buf1 = self.build_inforeq(trid=1)
         buf2 = self.build_solicit(trid=2)
         return [(self.target, 547, buf1), (self.target, 547, buf2)]
 
-    # override DHCPBaseScanner
+    @override(DHCPBaseScanner)
     def send_pkts_stop_retry(self) -> bool:
         for pkt in self.results:
             addr, port, buf = pkt
@@ -65,7 +66,7 @@ class DHCPPinger(DHCPBaseScanner):
         return self.dhcp_reply is not None and \
             self.dhcp_advertise is not None
 
-    # override DHCPBaseScanner
+    @override(DHCPBaseScanner)
     def init_send_loop(self):
         self.dhcp_reply = None
         self.dhcp_advertise = None
