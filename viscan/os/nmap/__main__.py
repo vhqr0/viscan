@@ -18,7 +18,7 @@ def main():
     scanner.scan()
     results = scanner.parse()
 
-    if not parser.output(results):
+    if not parser.try_output(results):
         for name, fp in results.items():
             print(f'{name}\t{fp}')
 

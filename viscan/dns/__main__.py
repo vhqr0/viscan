@@ -23,7 +23,7 @@ def main():
     scanner.scan()
     results = scanner.parse()
 
-    if not parser.output(results):
+    if not parser.try_output(results):
         for result in results:
             print(result)
 

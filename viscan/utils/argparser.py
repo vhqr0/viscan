@@ -53,7 +53,7 @@ class GenericScanArgParser(ArgumentParser):
 
         return args
 
-    def output(self, obj: Any) -> bool:
+    def try_output(self, obj: Any) -> bool:
         if self.output_file is None:
             return False
         json.dump(obj, open(self.output_file, 'w'))
