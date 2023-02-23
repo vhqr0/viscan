@@ -45,8 +45,6 @@ class GenericScanArgParser(ArgumentParser):
         self.scan_kwargs['retry'] = args.retry
         self.scan_kwargs['timewait'] = args.timewait
         self.scan_kwargs['interval'] = args.interval
-        self.scan_kwargs['open_port'] = args.open_port
-        self.scan_kwargs['closed_port'] = args.closed_port
 
         self.output_file = args.output_file
 

@@ -7,10 +7,14 @@ def main():
     parser = GenericScanArgParser()
     args = parser.parse_args()
 
+    open_port = args.open_port
+    closed_port = args.closed_port
     target = AddrGenerator.resolve(args.targets[0])
 
-    scanner = NmapFingerPrinter(target=target, **parser.scan_kwargs)
-
+    scanner = NmapFingerPrinter(target=target,
+                                open_port=open_port,
+                                closed_port=closed_port,
+                                **parser.scan_kwargs)
     scanner.scan()
     results = scanner.parse()
 
