@@ -8,8 +8,6 @@ def main():
     parser.add_argument('-L', '--limit', type=int, default=DNS_LIMIT)
     args = parser.parse_args()
 
-    basename = args.basename
-    nameserver = args.nameserver
     limit = args.limit
     no_recursive = args.no_recursive
     skip_check_autogen = args.skip_dwim
