@@ -13,7 +13,7 @@ def main():
     scanner.scan()
     results = scanner.parse()
 
-    if parser.output(results):
+    if not parser.output(results):
         for k, v in results.items():
             print(f'{k}:\t{v}')
 

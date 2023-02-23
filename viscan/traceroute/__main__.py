@@ -19,7 +19,7 @@ def main():
     scanner.scan()
     results = scanner.parse()
 
-    if parser.output(results):
+    if not parser.output(results):
         for i, addr in enumerate(results):
             print(f'{i+1}\t{addr}')
 

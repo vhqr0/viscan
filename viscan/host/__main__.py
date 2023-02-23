@@ -24,7 +24,7 @@ def main():
     scanner.scan()
     results = scanner.parse()
 
-    if parser.output(results):
+    if not parser.output(results):
         for addr, state in results:
             print(f'{addr}\t{state}')
 
