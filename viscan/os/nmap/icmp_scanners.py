@@ -5,12 +5,12 @@ import scapy.all as sp
 from typing import Any, List, Mapping
 
 from ...utils.decorators import override
-from ..base import OSBaseScanner
+from ..base import OSBaseScanner, OSScanMixin
 
 Pad4 = sp.PadN(optdata=b'\x00\x00\x00\x00')
 
 
-class NmapU1Scanner(OSBaseScanner):
+class NmapU1Scanner(OSScanMixin, OSBaseScanner):
     port: int
 
     # override
@@ -23,11 +23,11 @@ class NmapU1Scanner(OSBaseScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'target': self.target}
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for _ in range(3):
@@ -38,7 +38,7 @@ class NmapU1Scanner(OSBaseScanner):
         return pkts
 
 
-class NmapIE1Scanner(OSBaseScanner):
+class NmapIE1Scanner(OSScanMixin, OSBaseScanner):
     ieid: int
 
     # override
@@ -51,11 +51,11 @@ class NmapIE1Scanner(OSBaseScanner):
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'target': self.target, 'ieid': self.ieid}
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.IPv6ExtHdrHopByHop(options=[Pad4]) / \
@@ -66,7 +66,7 @@ class NmapIE1Scanner(OSBaseScanner):
         return [pkt]
 
 
-class NmapIE2Scanner(OSBaseScanner):
+class NmapIE2Scanner(OSScanMixin, OSBaseScanner):
     ieid: int
 
     # override
@@ -86,11 +86,11 @@ class NmapIE2Scanner(OSBaseScanner):
     # def parse(self) -> List[Optional[bytes]]:
     #     pass
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'target': self.target, 'ieid': self.ieid}
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.IPv6ExtHdrHopByHop(options=[Pad4]) / \

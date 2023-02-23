@@ -6,14 +6,14 @@ import scapy.all as sp
 from typing import Optional, Any, List, Mapping
 
 from ...utils.decorators import override
-from ..base import OSBaseScanner
+from ..base import OSBaseScanner, OSScanMixin
 
 
-class _NmapTCPBaseScanner(OSBaseScanner):
+class _NmapTCPBaseScanner(OSScanMixin, OSBaseScanner):
     target_port: int
     port: int
 
-    # override OSBaseScanner
+    # override
     logger = logging.getLogger('tcp_scanner')
     filter_template = 'ip6 and ' \
         'tcp dst port {port} and ' \
@@ -26,7 +26,7 @@ class _NmapTCPBaseScanner(OSBaseScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    @override(OSBaseScanner)
+    @override(OSScanMixin)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'port': self.port, 'target_port': self.target_port}
 
@@ -44,7 +44,7 @@ class _NmapTCPClosedScanner(_NmapTCPBaseScanner):
 
 
 class NmapTECNScanner(_NmapTCPOpenScanner):
-    # override OSBaseScanner
+    # override
     fp_names = ['TECN']
 
     @override(_NmapTCPOpenScanner)
@@ -72,7 +72,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
     syn_round: int
     syn_results: List[List[bytes]]
 
-    # override OSBaseScanner
+    # override
     fp_names = [
         'S1#1',
         'S2#1',
@@ -205,7 +205,7 @@ class _NmapTCPFlagsWindowMixin:
     flags: str = ''
     window: int = 0
 
-    # override mixin OSBaseScanner
+    # override
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
