@@ -30,17 +30,17 @@ class DNSScanner(BaseScanner):
     def __init__(
             self,
             basename: str = SUFFIX,
-            limit: int = DNS_LIMIT,  # in nibbles, total is 32
             nameserver: Optional[str] = None,
+            limit: int = DNS_LIMIT,  # in nibbles, total is 32
             no_recursive: bool = False,
             skip_check_autogen: bool = False,
             **kwargs):
         if not basename.endswith(self.SUFFIX):
             raise ValueError(f'invalid base name: {basename}')
         self.basename = basename
-        self.limit = 2 * limit + self.SUFFIXLEN
         self.nameserver = nameserver if nameserver is not None \
             else self.get_default_nameserver()
+        self.limit = 2 * limit + self.SUFFIXLEN
         self.no_recursive = no_recursive
         self.skip_check_autogen = skip_check_autogen
         self.results = []

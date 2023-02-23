@@ -1,24 +1,17 @@
 import sys
-import json
-import argparse
 
-from ..defaults import INTERVAL
+from ..utils.argparser import GenericScanArgParser
 from ..utils.generators import AddrGenerator
 from .scanners import HostScanner
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output')
-    parser.add_argument('-I', '--interval', type=float, default=INTERVAL)
-    parser.add_argument('addrs', nargs=argparse.REMAINDER)
+    parser = GenericScanArgParser()
     args = parser.parse_args()
 
-    output = args.output
-    addrs = args.addrs
-    interval = args.interval
+    addrs = args.targets
 
-    if not addrs:
+    if len(addrs) == 0:
         for line in sys.stdin:
             line = line.strip()
             if len(line) == 0 or line[0] == '#':
@@ -26,13 +19,12 @@ def main():
             addrs.append(line)
 
     targets = list(AddrGenerator(addrs).addrs)
-    scanner = HostScanner(targets, interval=interval)
+    scanner = HostScanner(targets, **parser.scan_kwargs)
+
     scanner.scan()
     results = scanner.parse()
 
-    if output is not None:
-        json.dump(results, open(output, 'w'))
-    else:
+    if parser.output(results):
         for addr, state in results:
             print(f'{addr}\t{state}')
 

@@ -1,44 +1,31 @@
-import json
-import argparse
-
-from ..defaults import (
-    TIMEWAIT,
-    DNS_LIMIT,
-)
+from ..defaults import DNS_LIMIT
+from ..utils.argparser import GenericScanArgParser
 from .scanners import DNSScanner
 
 
 def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('-o', '--output')
-    parser.add_argument('-s', '--nameserver')
+    parser = GenericScanArgParser()
     parser.add_argument('-L', '--limit', type=int, default=DNS_LIMIT)
-    parser.add_argument('-T', '--timewait', type=float, default=TIMEWAIT)
-    parser.add_argument('-N', '--no-recursive', action='store_true')
-    parser.add_argument('-S', '--skip-check-autogen', action='store_true')
-    parser.add_argument('basename')
     args = parser.parse_args()
 
-    output = args.output
     basename = args.basename
     nameserver = args.nameserver
     limit = args.limit
-    timewait = args.timewait
     no_recursive = args.no_recursive
-    skip_check_autogen = args.skip_check_autogen
+    skip_check_autogen = args.skip_dwim
+    basename = args.targets[0] if len(args.targets) >= 1 else 'ip6.arpa.'
+    nameserver = args.target[1] if len(args.targets) >= 2 else None
 
     scanner = DNSScanner(basename=basename,
-                         limit=limit,
                          nameserver=nameserver,
-                         timewait=timewait,
+                         limit=limit,
                          no_recursive=no_recursive,
-                         skip_check_autogen=skip_check_autogen)
+                         skip_check_autogen=skip_check_autogen,
+                         **parser.scan_kwargs)
     scanner.scan()
     results = scanner.parse()
 
-    if output is not None:
-        json.dump(results, open(output, 'w'))
-    else:
+    if not parser.output(results):
         for result in results:
             print(result)
 
