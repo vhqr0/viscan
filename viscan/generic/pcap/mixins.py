@@ -5,6 +5,7 @@ import scapy.all as sp
 
 from typing import Any, Mapping
 
+from ...utils.decorators import override
 from ..base import GenericScanMixin
 from .scanners import MixinForPcapScanner
 
@@ -17,7 +18,7 @@ class PcapScanMixin(GenericScanMixin[sp.IPv6, bytes],
         sniffer.setnonblock()
         return sniffer
 
-    # override GenericScanMixin
+    @override(GenericScanMixin)
     def send_pkt(self, pkt: sp.IPv6):
         dst = pkt.dst
         if sp.conf.route6.route(dst)[0] != self.iface:
@@ -25,7 +26,7 @@ class PcapScanMixin(GenericScanMixin[sp.IPv6, bytes],
             return
         sp.send(pkt, iface=self.iface, verbose=0)
 
-    # override GenericScanMixin
+    @override(GenericScanMixin)
     def receive_loop(self):
         sniffer = self.get_sniffer()
         while not self.done:
@@ -40,7 +41,7 @@ class PcapScanMixin(GenericScanMixin[sp.IPv6, bytes],
 class FilterMixin(MixinForPcapScanner):
     filter_template: str = 'ip6'
 
-    # override mixin PcapScanner
+    @override(MixinForPcapScanner)
     def get_filter(self):
         return self.filter_template.format_map(self.get_filter_context())
 

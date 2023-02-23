@@ -3,6 +3,7 @@ import threading
 
 from typing import Generic, TypeVar, Optional, List
 
+from ...utils.decorators import override
 from .scanners import MixinForBaseScanner
 
 PktType = TypeVar('PktType')
@@ -90,7 +91,7 @@ class GenericScanMixin(GenericSendMixin[PktType],
                        GenericReceiveMixin[ResultType]):
     done: bool
 
-    # override GenericSendMixin
+    @override(GenericSendMixin)
     def send_pkts_stop_retry(self):
         return len(self.results) != 0
 
@@ -99,7 +100,7 @@ class GenericScanMixin(GenericSendMixin[PktType],
         self.init_send_loop()
         self.init_receive_loop()
 
-    # override mixin BaseScanner
+    @override(GenericSendMixin)
     def scan(self):
         self.init_scan()
 

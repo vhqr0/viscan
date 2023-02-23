@@ -1,19 +1,24 @@
 import logging
 
-from typing import Callable
-
 from ...defaults import (
     RETRY,
     TIMEWAIT,
     INTERVAL,
 )
+from ...utils.decorators import override
 
 
-class BaseScanner:
+class MixinForBaseScanner:
     retry: int
     timewait: float
     interval: float
+    logger: logging.Logger
 
+    def scan(self):
+        super().scan()
+
+
+class BaseScanner(MixinForBaseScanner):
     logger = logging.getLogger('scanner')
 
     def __init__(self,
@@ -28,13 +33,6 @@ class BaseScanner:
         for k, v in kwargs.items():
             self.logger.warning('unused initial args: %s %s', k, v)
 
+    @override(MixinForBaseScanner)
     def scan(self):
         raise NotImplementedError
-
-
-class MixinForBaseScanner:
-    retry: int
-    timewait: float
-    interval: float
-    logger: logging.Logger
-    scan: Callable

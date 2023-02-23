@@ -6,6 +6,7 @@ import logging
 from typing import Optional, Tuple, List
 
 from ..defaults import TRACEROUTE_LIMIT
+from ..utils.decorators import override
 from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
 from ..utils.icmp6_filter import (
     ICMP6_TIME_EXCEEDED,
@@ -37,13 +38,13 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
     def parse(self) -> List[Optional[str]]:
         return self.tr_results
 
-    # override DgramScanMixin
+    @override(DgramScanMixin)
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
         buf = struct.pack('!BBHHH', ICMP6_ECHO_REQ, 0, 0, self.ieid,
                           self.tr_round)
         return [(self.target, 0, buf)]
 
-    # override DgramScanMixin
+    @override(DgramScanMixin)
     def prepare_pkts(self):
 
         arrived = False
@@ -76,13 +77,14 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         self.pkts_prepared = False
         return super().prepare_pkts()
 
-    # override DgramScanMixin
+    @override(DgramScanMixin)
     def send_pkt(self, pkt: Tuple[str, int, bytes]):
         addr, _, buf = pkt
         cmsg = [(socket.IPPROTO_IPV6, socket.IPV6_HOPLIMIT,
                  struct.pack('@I', self.tr_round))]
         self.sock.sendmsg([buf], cmsg, 0, (addr, 0))
 
+    @override(DgramScanMixin)
     def init_send_loop(self):
         self.tr_round = 0
         self.tr_results = []

@@ -3,6 +3,7 @@ import socket
 
 from typing import Tuple, List
 
+from ...utils.decorators import override
 from ...utils.icmp6_filter import (
     ICMP6Filter,
     ICMP6_ECHO_REP,
@@ -15,12 +16,12 @@ DgramPkt = Tuple[str, int, bytes]
 
 class DgramScanMixin(GenericScanMixin[DgramPkt, DgramPkt],
                      MixinForDgramScanner):
-    # override GenericScanMixin
+    @override(GenericScanMixin)
     def send_pkt(self, pkt: DgramPkt):
         addr, port, buf = pkt
         self.sock.sendto(buf, (addr, port))
 
-    # override GenericScanMixin
+    @override(GenericScanMixin)
     def receive_loop(self):
         while not self.done:
             rlist, _, _ = select.select([self.sock], [], [], 1)
@@ -48,7 +49,7 @@ class SockMixin(MixinForDgramScanner):
     def get_sock_proto(self):
         return self.sock_proto
 
-    # override mixin DgramScanner
+    @override(MixinForDgramScanner)
     def get_sock(self) -> socket.socket:
         sock = socket.socket(family=self.get_sock_family(),
                              type=self.get_sock_type(),
@@ -70,7 +71,7 @@ class ICMP6SockMixin(SockMixin):
     def get_icmp6_whitelist(self):
         return self.icmp6_whitelist
 
-    # override SockMixin
+    @override(SockMixin)
     def prepare_sock(self, sock: socket.socket):
         icmp6_filter = ICMP6Filter()
         icmp6_filter.setblockall()
@@ -89,7 +90,7 @@ class UDPSockMixin(SockMixin):
     def get_udp_addr(self):
         return self.udp_addr
 
-    # override SockMixin
+    @override(SockMixin)
     def prepare_sock(self, sock: socket.socket):
         sock.bind(self.get_udp_addr())
         super().prepare_sock(sock)
