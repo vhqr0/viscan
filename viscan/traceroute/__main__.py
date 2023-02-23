@@ -6,7 +6,7 @@ from .scanners import TracerouteScanner
 
 def main():
     parser = GenericScanArgParser()
-    parser.add_argument('-L', '--limit', default=TRACEROUTE_LIMIT)
+    parser.add_limit_dwim(TRACEROUTE_LIMIT)
     args = parser.parse_args()
 
     limit = args.limit

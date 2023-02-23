@@ -5,7 +5,7 @@ from .scanners import DNSScanner
 
 def main():
     parser = GenericScanArgParser()
-    parser.add_argument('-L', '--limit', type=int, default=DNS_LIMIT)
+    parser.add_limit_dwim(DNS_LIMIT)
     args = parser.parse_args()
 
     limit = args.limit
