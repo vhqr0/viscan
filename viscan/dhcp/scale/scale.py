@@ -23,5 +23,5 @@ def scale(addrs: List[int]) -> Tuple[str, int, int, int]:
             return 'linear', addrs[0], addrs[-1], math.ceil(avg)
 
     a1, a2 = min(addrs), max(addrs)
-    d = math.ceil((a2 - a1)) / (len(addrs) - 1)
+    d = math.ceil((a2 - a1) / (len(addrs) - 1))
     return 'random', a1, a2, d
