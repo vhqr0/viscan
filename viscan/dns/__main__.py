@@ -8,7 +8,7 @@ def main():
     parser.add_limit_dwim(DNS_LIMIT)
     args = parser.parse_args()
 
-    limit = args.limit
+    limit = args.limit_dwim
     no_recursive = args.no_recursive
     skip_check_autogen = args.skip_dwim
     basename = args.targets[0] if len(args.targets) >= 1 else 'ip6.arpa.'

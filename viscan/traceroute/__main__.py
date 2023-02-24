@@ -9,7 +9,7 @@ def main():
     parser.add_limit_dwim(TRACEROUTE_LIMIT)
     args = parser.parse_args()
 
-    limit = args.limit
+    limit = args.limit_dwim
     target = AddrGenerator.resolve(args.targets[0])
 
     scanner = TracerouteScanner(target=target,
