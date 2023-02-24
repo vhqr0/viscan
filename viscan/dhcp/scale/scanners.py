@@ -1,8 +1,9 @@
+import ipaddress
 import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
-from typing import Optional, Tuple, List
+from typing import Any, Optional, Tuple, List, Dict
 
 from ...defaults import (
     DHCP_SCALE_COUNT,
@@ -10,6 +11,7 @@ from ...defaults import (
 )
 from ...utils.decorators import override
 from ..base import DHCPScanMixin, DHCPBaseScanner
+from .scale import scale
 
 
 class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
@@ -27,7 +29,20 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
         self.lossrate = lossrate
         super().__init__(**kwargs)
 
-    def parse(self) -> List[Tuple[Optional[str], Optional[str], Optional[str]]]:
+    def scale(
+            self,
+            addrs: List[Optional[str]]) -> Optional[Tuple[str, str, str, str]]:
+        if len(addrs) <= len(self.count) / 2:
+            return None
+        addrs_int = [
+            int(ipaddress.IPv6Address(addr)) for addr in addrs
+            if addr is not None
+        ]
+        t, a1, a2, d = scale(addrs_int)
+        return t, str(ipaddress.IPv6Address(a1)), \
+            str(ipaddress.IPv6Address(a2)), str(ipaddress.IPv6Address(d))
+
+    def parse(self) -> Dict[str, Any]:
         results: List[Tuple[Optional[str], Optional[str], Optional[str]]] = \
             [(None, None, None) for _ in range(self.count)]
         for pkt in self.results:
@@ -43,7 +58,12 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
                 self.get_ta(msg),
                 self.get_pd(msg),
             )
-        return results
+        return {
+            'na_scale': [addrs[0] for addrs in results],
+            'ta_scale': [addrs[1] for addrs in results],
+            'pd_scale': [addrs[2] for addrs in results],
+            'results': results,
+        }
 
     @override(DHCPScanMixin)
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:

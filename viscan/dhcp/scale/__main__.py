@@ -1,3 +1,5 @@
+import pprint
+
 from ...defaults import (
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
@@ -25,7 +27,10 @@ def main():
     results = scanner.parse()
 
     if not parser.try_output(results):
-        for i, result in enumerate(results):
+        for scale in ('na_scale', 'ta_scale', 'pd_scale'):
+            print(f'--- {scale} ---')
+            pprint.pprint(results[scale])
+        for i, result in enumerate(results['results']):
             na, ta, pd = result
             print(f'{i}:\t{na}\t{ta}\t{pd}')
 
