@@ -177,6 +177,12 @@ class NmapT1Scanner(NmapTCPOpenScanner):
                     self.logger.warning('invalid ack number')
         return results
 
+    @override(NmapTCPOpenScanner)
+    def init_send_loop(self):
+        self.syn_round = -1
+        self.syn_results = [[] for _ in range(3)]
+        super().init_send_loop()
+
 
 class NmapT2Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPOpenScanner):
     fp_names = ['T2']
