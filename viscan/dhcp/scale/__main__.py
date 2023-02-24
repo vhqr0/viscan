@@ -27,12 +27,9 @@ def main():
     results = scanner.parse()
 
     if not parser.try_output(results):
-        for scale in ('na_scale', 'ta_scale', 'pd_scale'):
-            print(f'--- {scale} ---')
-            pprint.pprint(results[scale])
-        for i, result in enumerate(results['results']):
-            na, ta, pd = result
-            print(f'{i}:\t{na}\t{ta}\t{pd}')
+        for k, v in results.items():
+            print(f'--- {k} ---')
+            pprint.pprint(v)
 
 
 if __name__ == '__main__':
