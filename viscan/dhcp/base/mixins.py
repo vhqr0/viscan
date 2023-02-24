@@ -59,7 +59,7 @@ class DHCPScanMixin(UDPSockMixin, DgramScanMixin, MixinForDHCPBaseScanner):
 
     def get_ta(self, msg: dhcp6.DHCP6) -> Optional[str]:
         if dhcp6.DHCP6OptIA_TA in msg:
-            opts = msg[dhcp6.DHCP6OptIA_TA].ianaopts
+            opts = msg[dhcp6.DHCP6OptIA_TA].iataopts
             for opt in opts:
                 if isinstance(opt, dhcp6.DHCP6OptIAAddress):
                     return opt.addr
