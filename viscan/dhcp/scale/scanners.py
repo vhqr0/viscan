@@ -59,9 +59,9 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
                 self.get_pd(msg),
             )
         return {
-            'na_scale': [addrs[0] for addrs in results],
-            'ta_scale': [addrs[1] for addrs in results],
-            'pd_scale': [addrs[2] for addrs in results],
+            'na_scale': self.scale([addrs[0] for addrs in results]),
+            'ta_scale': self.scale([addrs[1] for addrs in results]),
+            'pd_scale': self.scale([addrs[2] for addrs in results]),
             'results': results,
         }
 
