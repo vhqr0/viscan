@@ -3,7 +3,7 @@ import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
-from typing import Any, Optional, Tuple, List, Dict
+from typing import Optional, Tuple, List, Dict
 
 from ...defaults import (
     DHCP_SCALE_COUNT,
@@ -40,7 +40,7 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
         return t, str(ipaddress.IPv6Address(a1)), \
             str(ipaddress.IPv6Address(a2)), str(ipaddress.IPv6Address(d))
 
-    def parse(self) -> Dict[str, Any]:
+    def parse(self) -> Dict[str, Optional[Tuple[str, str, str, str]]]:
         results: List[Tuple[Optional[str], Optional[str], Optional[str]]] = \
             [(None, None, None) for _ in range(self.count)]
         for pkt in self.results:
@@ -60,7 +60,6 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
             'na_scale': self.scale([addrs[0] for addrs in results]),
             'ta_scale': self.scale([addrs[1] for addrs in results]),
             'pd_scale': self.scale([addrs[2] for addrs in results]),
-            'results': results,
         }
 
     @override(DHCPScanMixin)
