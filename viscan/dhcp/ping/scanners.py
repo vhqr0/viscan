@@ -20,8 +20,6 @@ class DHCPPinger(DHCPScanMixin, DHCPBaseScanner):
     stateless = False
 
     def __init__(self, **kwargs):
-        self.dhcp_reply = None
-        self.dhcp_advertise = None
         super().__init__(**kwargs)
 
     def parse(self) -> Dict[str, Optional[str]]:
@@ -43,9 +41,7 @@ class DHCPPinger(DHCPScanMixin, DHCPBaseScanner):
     @override(DHCPScanMixin)
     def send_pkts_stop_retry(self) -> bool:
         for pkt in self.results:
-            addr, port, buf = pkt
-            if addr != self.target and port != 547:
-                continue
+            _, _, buf = pkt
             try:
                 msg = self.parse_msg(buf)
                 if isinstance(msg, dhcp6.DHCP6_Reply):

@@ -36,8 +36,17 @@ class GenericScanArgParser(ArgumentParser):
         self.add_argument('-S', '--skip-dwim', action='store_true')
         self.add_argument('targets', nargs=argparse.REMAINDER)
 
+    def add_count_dwim(self, count: int):
+        self.add_argument('-c', '--count-dwim', type=int, default=count)
+
     def add_limit_dwim(self, limit: int):
         self.add_argument('-L', '--limit-dwim', type=int, default=limit)
+
+    def add_lossrate_dwim(self, lossrate: float):
+        self.add_argument('-l',
+                          '--lossrate-dwim',
+                          type=float,
+                          default=lossrate)
 
     def parse_args(self, *args, **kwargs):
         args = super().parse_args(*args, **kwargs)
