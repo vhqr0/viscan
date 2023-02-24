@@ -13,8 +13,8 @@ def main():
     parser.add_lossrate_dwim(DHCP_SCALE_LOSSRATE)
     args = parser.parse_args()
 
-    count = args.count
-    lossrate = args.lossrate
+    count = args.count_dwim
+    lossrate = args.lossrate_dwim
     target = AddrGenerator.resolve(args.targets[0])
 
     scanner = DHCPScaler(target=target,
