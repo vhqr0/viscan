@@ -32,7 +32,7 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
     def scale(
             self,
             addrs: List[Optional[str]]) -> Optional[Tuple[str, str, str, str]]:
-        if len(addrs) <= len(self.count) / 2:
+        if len(addrs) <= self.count / 2:
             return None
         addrs_int = [
             int(ipaddress.IPv6Address(addr)) for addr in addrs
