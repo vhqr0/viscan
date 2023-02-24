@@ -27,7 +27,7 @@ class _NmapTCPBaseScanner(FilterMixin, OSScanMixin, OSBaseScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    @override(OSScanMixin)
+    @override(FilterMixin)
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'port': self.port, 'target_port': self.target_port}
 
