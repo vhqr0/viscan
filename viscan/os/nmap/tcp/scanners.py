@@ -1,54 +1,40 @@
 import random
-import logging
 
 import scapy.all as sp
 
-from typing import Optional, Any, List, Mapping
+from typing import Optional, List
 
-from ...generic.pcap import FilterMixin
-from ...utils.decorators import override
-from ..base import OSBaseScanner, OSScanMixin
+from ....utils.decorators import override
+from ...base import OSBaseScanner
+from .mixins import NmapTCPScanMixin, NmapTCPScanWithFlagsWindowMixin
 
 
-class _NmapTCPBaseScanner(FilterMixin, OSScanMixin, OSBaseScanner):
-    target_port: int
-    port: int
-
-    # override
-    logger = logging.getLogger('tcp_scanner')
-    filter_template = 'ip6 and ' \
-        'tcp dst port {port} and ' \
-        'tcp src port {target_port}'
+class NmapTCPBaseScanner(NmapTCPScanMixin, OSBaseScanner):
 
     def __init__(self, target_port: Optional[int], **kwargs):
         if target_port is None:
             raise ValueError('target port is None')
         self.target_port = target_port
-        self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
-    @override(FilterMixin)
-    def get_filter_context(self) -> Mapping[str, Any]:
-        return {'port': self.port, 'target_port': self.target_port}
 
-
-class _NmapTCPOpenScanner(_NmapTCPBaseScanner):
+class NmapTCPOpenScanner(NmapTCPBaseScanner):
 
     def __init__(self, open_port: Optional[int] = None, **kwargs):
         super().__init__(target_port=open_port, **kwargs)
 
 
-class _NmapTCPClosedScanner(_NmapTCPBaseScanner):
+class NmapTCPClosedScanner(NmapTCPBaseScanner):
 
     def __init__(self, closed_port: Optional[int] = None, **kwargs):
         super().__init__(target_port=closed_port, **kwargs)
 
 
-class NmapTECNScanner(_NmapTCPOpenScanner):
+class NmapTECNScanner(NmapTCPOpenScanner):
     # override
     fp_names = ['TECN']
 
-    @override(_NmapTCPOpenScanner)
+    @override(NmapTCPOpenScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkt = sp.IPv6(dst=self.target) / \
             sp.TCP(sport=self.port,
@@ -68,7 +54,7 @@ class NmapTECNScanner(_NmapTCPOpenScanner):
         return [pkt]
 
 
-class NmapT1Scanner(_NmapTCPOpenScanner):
+class NmapT1Scanner(NmapTCPOpenScanner):
     initial_seq: int
     syn_round: int
     syn_results: List[List[bytes]]
@@ -149,7 +135,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
         super().__init__(**kwargs)
         self.interval = 0.1  # force 0.1s
 
-    @override(_NmapTCPOpenScanner)
+    @override(NmapTCPOpenScanner)
     def get_pkts(self) -> List[sp.IPv6]:
         pkts = []
         for i, arg in enumerate(self.tcp_args):
@@ -164,11 +150,11 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
             pkts.append(pkt)
         return pkts
 
-    @override(_NmapTCPOpenScanner)
+    @override(NmapTCPOpenScanner)
     def prepare_pkts(self) -> bool:
         if self.syn_round >= 0:
             self.syn_results[self.syn_round] = self.results
-            self.results = []   # Notice: new list
+            self.results = []  # Notice: new list
 
         self.syn_round += 1
         if self.syn_round >= 3:
@@ -177,7 +163,7 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
         self.pkts_prepared = False
         return super().prepare_pkts()
 
-    @override(_NmapTCPOpenScanner)
+    @override(NmapTCPOpenScanner)
     def parse(self) -> List[Optional[bytes]]:
         results: List[Optional[bytes]] = [None for _ in range(18)]
         for i in range(3):
@@ -191,62 +177,37 @@ class NmapT1Scanner(_NmapTCPOpenScanner):
                     self.logger.warning('invalid ack number')
         return results
 
-    @override(_NmapTCPOpenScanner)
-    def init_send_loop(self):
-        self.syn_round = -1
-        self.syn_results = [[] for _ in range(3)]
-        super().init_send_loop()
 
-
-class _NmapTCPFlagsWindowMixin:
-    target: str
-    target_port: int
-    port: int
-
-    flags: str = ''
-    window: int = 0
-
-    # override
-    def get_pkts(self) -> List[sp.IPv6]:
-        pkt = sp.IPv6(dst=self.target) / \
-            sp.TCP(sport=self.port,
-                   dport=self.target_port,
-                   seq=random.getrandbits(32),
-                   flags=self.flags,
-                   window=self.window)
-        return [pkt]
-
-
-class NmapT2Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPOpenScanner):
+class NmapT2Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPOpenScanner):
     fp_names = ['T2']
     window = 128
 
 
-class NmapT3Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPOpenScanner):
+class NmapT3Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPOpenScanner):
     fp_names = ['T3']
     flags = 'FSPU'
     window = 256
 
 
-class NmapT4Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPOpenScanner):
+class NmapT4Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPOpenScanner):
     fp_names = ['T4']
     flags = 'A'
     window = 1024
 
 
-class NmapT5Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPClosedScanner):
+class NmapT5Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPClosedScanner):
     fp_names = ['T5']
     flags = 'S'
     window = 31337
 
 
-class NmapT6Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPClosedScanner):
+class NmapT6Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPClosedScanner):
     fp_names = ['T6']
     flags = 'A'
     window = 32768
 
 
-class NmapT7Scanner(_NmapTCPFlagsWindowMixin, _NmapTCPClosedScanner):
+class NmapT7Scanner(NmapTCPScanWithFlagsWindowMixin, NmapTCPClosedScanner):
     fp_names = ['T7']
     flags = 'FPU'
     window = 65535

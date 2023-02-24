@@ -1,7 +1,7 @@
 import logging
 
 from ..base import OSBaseFingerPrinter
-from .tcp_scanners import (
+from .tcp import (
     NmapTECNScanner,
     NmapT1Scanner,
     NmapT2Scanner,
