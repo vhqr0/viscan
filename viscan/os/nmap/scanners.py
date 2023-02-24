@@ -11,7 +11,7 @@ from .tcp_scanners import (
     NmapT6Scanner,
     NmapT7Scanner,
 )
-from .icmp_scanners import NmapU1Scanner, NmapIE1Scanner, NmapIE2Scanner
+from .icmp import NmapU1Scanner, NmapIE1Scanner, NmapIE2Scanner
 
 
 class NmapFingerPrinter(OSBaseFingerPrinter):

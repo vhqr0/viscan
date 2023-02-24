@@ -5,11 +5,12 @@ import scapy.all as sp
 
 from typing import Optional, Any, List, Mapping
 
+from ...generic.pcap import FilterMixin
 from ...utils.decorators import override
 from ..base import OSBaseScanner, OSScanMixin
 
 
-class _NmapTCPBaseScanner(OSScanMixin, OSBaseScanner):
+class _NmapTCPBaseScanner(FilterMixin, OSScanMixin, OSBaseScanner):
     target_port: int
     port: int
 

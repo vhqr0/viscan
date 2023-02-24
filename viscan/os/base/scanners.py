@@ -1,3 +1,4 @@
+import random
 import logging
 
 from typing import Any, Type, Optional, List, Dict
@@ -11,6 +12,7 @@ class MixinForOSBaseScanner(MixinForPcapScanner):
     target: str
     open_port: Optional[int]
     closed_port: Optional[int]
+    port: int  # ieid for icmp, port for tcp/udp
 
     def parse(self) -> List[Optional[bytes]]:
         return super().parse()
@@ -32,6 +34,7 @@ class OSBaseScanner(PcapScanner, MixinForOSBaseScanner):
         self.target = target
         self.open_port = open_port
         self.closed_port = closed_port
+        self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
 

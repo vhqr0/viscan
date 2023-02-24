@@ -4,12 +4,12 @@ import scapy.all as sp
 
 from typing import Optional, List, Dict
 
-from ...generic.pcap import PcapScanMixin, FilterMixin
+from ...generic.pcap import PcapScanMixin
 from ...utils.decorators import override
 from .scanners import MixinForOSBaseScanner
 
 
-class OSScanMixin(FilterMixin, PcapScanMixin, MixinForOSBaseScanner):
+class OSScanMixin(PcapScanMixin, MixinForOSBaseScanner):
 
     # override PcapScanMixin
     stateless = False
