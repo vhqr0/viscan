@@ -63,8 +63,9 @@ class DHCPScaler(FinalResultMixin[Dict[str, Optional[Tuple[str, int, int,
             addrs = [addr for addr in addrs if addr is not None]
             if len(addrs) < self.lossrate * self.count:
                 results[name] = None
-            results[name] = scale(
-                [int(ipaddress.IPv6Address(addr)) for addr in addrs])
+            else:
+                results[name] = scale(
+                    [int(ipaddress.IPv6Address(addr)) for addr in addrs])
 
         self.final_result = results
 
