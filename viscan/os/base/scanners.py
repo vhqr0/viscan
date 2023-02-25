@@ -49,7 +49,8 @@ class OSBaseFingerPrinter(FinalResultMixin[Dict[str, Optional[sp.IPv6]]],
 
     scanner_clses: List[Type[OSBaseScanner]] = []
 
-    def __init__(self, **kwargs):
+    def __init__(self, output_file: Optional[str] = None, **kwargs):
+        super().__init__(output_file=output_file)
         self.kwargs = kwargs
         self.results = dict()
 
