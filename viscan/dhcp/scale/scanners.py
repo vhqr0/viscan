@@ -3,7 +3,7 @@ import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
-from typing import Any, Optional, Tuple, List, Dict
+from typing import Optional, Tuple, List, Dict
 
 from ...defaults import (
     DHCP_SCALE_COUNT,
@@ -68,6 +68,19 @@ class DHCPScaler(FinalResultMixin[Dict[str, Optional[Tuple[str, int, int,
                     [int(ipaddress.IPv6Address(addr)) for addr in addrs])
 
         self.final_result = results
+
+    @override(FinalResultMixin)
+    def print(self):
+        for name, args in self.final_result.items():
+            print(f'name: {name}')
+            if args is None:
+                print(None)
+            else:
+                t, a1, a2, d = args
+                print(f't: {t}')
+                print(f'a1: {ipaddress.IPv6Address(a1)}')
+                print(f'a2: {ipaddress.IPv6Address(a2)}')
+                print(f'd: {ipaddress.IPv6Address(d)}')
 
     @override(FinalResultMixin)
     def to_jsonable(self) -> Dict[str, Optional[Dict[str, str]]]:
