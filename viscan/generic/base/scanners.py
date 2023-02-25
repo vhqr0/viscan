@@ -17,8 +17,9 @@ class MixinForBaseScanner:
     output_file: Optional[str]
     logger: logging.Logger
 
-    def run(self):
-        super().run()
+    @classmethod
+    def main(cls, *args, **kwargs):
+        super().main(*args, **kwargs)
 
     def scan(self):
         super().scan()
