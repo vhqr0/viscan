@@ -3,12 +3,15 @@ import struct
 import socket
 import logging
 
-from typing import Optional, Tuple, List
+from typing import Any, Optional, Tuple, List, Dict
+from argparse import Namespace
 
 from ..defaults import TRACEROUTE_LIMIT
-from ..generic.base import FinalResultMixin
+from ..generic.base import FinalResultMixin, GenericMainMixin
 from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
 from ..utils.decorators import override
+from ..utils.argparser import GenericScanArgParser
+from ..utils.generators import AddrGenerator
 from ..utils.icmp6_filter import (
     ICMP6_TIME_EXCEEDED,
     ICMP6_ECHO_REQ,
@@ -16,7 +19,8 @@ from ..utils.icmp6_filter import (
 )
 
 
-class TracerouteScanner(FinalResultMixin[List[Optional[str]]], ICMP6SockMixin,
+class TracerouteScanner(GenericMainMixin,
+                        FinalResultMixin[List[Optional[str]]], ICMP6SockMixin,
                         DgramScanMixin, DgramScanner):
     target: str
     limit: int
@@ -97,3 +101,17 @@ class TracerouteScanner(FinalResultMixin[List[Optional[str]]], ICMP6SockMixin,
     def print(self):
         for i, addr in enumerate(self.final_result):
             print(f'{i+1}\t{addr}')
+
+    @classmethod
+    @override(GenericMainMixin)
+    def get_argparser(self, *args, **kwargs) -> GenericScanArgParser:
+        parser = super().get_argparser(*args, **kwargs)
+        parser.add_limit_dwim(TRACEROUTE_LIMIT)
+        return parser
+
+    @classmethod
+    @override(GenericMainMixin)
+    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
+        super().add_scan_kwargs(raw_args, scan_kwargs)
+        scan_kwargs['limit'] = raw_args.limit_dwim
+        scan_kwargs['target'] = AddrGenerator.resolve(raw_args.targets[0])
