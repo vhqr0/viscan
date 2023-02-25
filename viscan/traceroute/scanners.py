@@ -6,6 +6,7 @@ import logging
 from typing import Optional, Tuple, List
 
 from ..defaults import TRACEROUTE_LIMIT
+from ..generic.base import FinalResultMixin
 from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
 from ..utils.decorators import override
 from ..utils.icmp6_filter import (
@@ -15,7 +16,8 @@ from ..utils.icmp6_filter import (
 )
 
 
-class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
+class TracerouteScanner(FinalResultMixin[List[Optional[str]]], ICMP6SockMixin,
+                        DgramScanMixin, DgramScanner):
     target: str
     limit: int
     ieid: int
@@ -34,9 +36,6 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         self.limit = limit
         self.ieid = random.getrandbits(16)
         super().__init__(**kwargs)
-
-    def parse(self) -> List[Optional[str]]:
-        return self.tr_results
 
     @override(DgramScanMixin)
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
@@ -89,3 +88,12 @@ class TracerouteScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         self.tr_round = 0
         self.tr_results = []
         super().init_send_loop()
+
+    @override(FinalResultMixin)
+    def parse(self):
+        self.final_result = self.tr_results
+
+    @override(FinalResultMixin)
+    def print(self):
+        for i, addr in enumerate(self.final_result):
+            print(f'{i+1}\t{addr}')

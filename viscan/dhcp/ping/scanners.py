@@ -6,11 +6,14 @@ from typing import Optional, Dict, Tuple, List
 import scapy.all as sp
 import scapy.layers.dhcp6 as dhcp6
 
+from ...generic.base import FinalResultMixin
 from ...utils.decorators import override
 from ..base import DHCPScanMixin, DHCPBaseScanner
 
 
-class DHCPPinger(DHCPScanMixin, DHCPBaseScanner):
+class DHCPPinger(FinalResultMixin[Tuple[Optional[dhcp6.DHCP6_Reply],
+                                        Optional[dhcp6.DHCP6_Advertise]]],
+                 DHCPScanMixin, DHCPBaseScanner):
     dhcp_reply: Optional[dhcp6.DHCP6_Reply]
     dhcp_advertise: Optional[dhcp6.DHCP6_Advertise]
 
@@ -21,16 +24,6 @@ class DHCPPinger(DHCPScanMixin, DHCPBaseScanner):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-
-    def parse(self) -> Dict[str, Optional[str]]:
-        results: Dict[str, Optional[str]] = {'addr': self.target}
-        for name, msg in [('inforeq', self.dhcp_reply),
-                          ('solicit', self.dhcp_advertise)]:
-            if msg is None:
-                results[name] = None
-            else:
-                results[name] = base64.b64encode(sp.raw(msg)).decode()
-        return results
 
     @override(DHCPScanMixin)
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
@@ -68,3 +61,26 @@ class DHCPPinger(DHCPScanMixin, DHCPBaseScanner):
         self.dhcp_reply = None
         self.dhcp_advertise = None
         super().init_send_loop()
+
+    @override(FinalResultMixin)
+    def parse(self):
+        self.final_result = (self.dhcp_reply, self.dhcp_advertise)
+
+    @override(FinalResultMixin)
+    def print(self):
+        for name, pkt in zip(('reply', 'advertise'), self.final_result):
+            print(f'name: {name}')
+            if pkt is None:
+                print(None)
+            else:
+                pkt.show()
+
+    @override(FinalResultMixin)
+    def to_jsonable(self) -> Dict[str, Optional[str]]:
+        results: Dict[str, Optional[str]] = dict()
+        for name, pkt in zip(('reply', 'advertise'), self.final_result):
+            if pkt is None:
+                results[name] = None
+            else:
+                results[name] = base64.b64encode(sp.raw(pkt)).decode()
+        return results

@@ -1,5 +1,7 @@
 import logging
 
+from typing import Optional
+
 from ...defaults import (
     RETRY,
     TIMEWAIT,
@@ -12,6 +14,7 @@ class MixinForBaseScanner:
     retry: int
     timewait: float
     interval: float
+    output_file: Optional[str]
     logger: logging.Logger
 
     def scan(self):
@@ -22,9 +25,10 @@ class BaseScanner(MixinForBaseScanner):
     logger = logging.getLogger('scanner')
 
     def __init__(self,
-                 retry=RETRY,
-                 timewait=TIMEWAIT,
-                 interval=INTERVAL,
+                 retry: int = RETRY,
+                 timewait: float = TIMEWAIT,
+                 interval: float = INTERVAL,
+                 output_file: Optional[str] = None,
                  **kwargs):
         self.retry = retry
         self.timewait = timewait

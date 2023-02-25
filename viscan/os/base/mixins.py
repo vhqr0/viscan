@@ -17,21 +17,36 @@ class OSScanMixin(PcapScanMixin, MixinForOSBaseScanner):
     fp_names: List[str] = []
 
     @override(MixinForOSBaseScanner)
-    def parse(self) -> List[Optional[bytes]]:
-        if not self.results:
-            return [None]
-        return [sp.raw(sp.Ether(self.results[0])[sp.IPv6])]
-
-    @override(MixinForOSBaseScanner)
-    def update_fp(self, fp: Dict[str, Optional[str]]):
+    def update_fp(self, fp: Dict[str, Optional[sp.IPv6]]):
         if len(self.fp_names) == 0:
             raise NotImplementedError
         try:
-            results = self.parse()
-            for name, result in zip(self.fp_names, results):
-                if result is None:
-                    fp[name] = None
-                else:
-                    fp[name] = base64.b64encode(result).decode()
+            for name, result in zip(self.fp_names, self.final_result):
+                fp[name] = result
         except Exception as e:
             self.logger.error('except while parsing: %s', e)
+
+    @override(MixinForOSBaseScanner)
+    def parse(self):
+        if len(self.results) == 0:
+            self.final_result = [None]
+        else:
+            self.final_result = [sp.Ether(self.results[0])[sp.IPv6]]
+
+    @override(MixinForOSBaseScanner)
+    def print(self):
+        for pkt in self.final_result:
+            if pkt is None:
+                print(None)
+            else:
+                pkt.show()
+
+    @override(MixinForOSBaseScanner)
+    def to_jsonable(self) -> List[Optional[str]]:
+        results: List[Optional[str]] = []
+        for pkt in self.results:
+            if pkt is None:
+                results.append(None)
+            else:
+                results.append(base64.b64encode(sp.raw(pkt)).decode())
+        return results

@@ -21,11 +21,8 @@ def main():
                          skip_check_autogen=skip_check_autogen,
                          **parser.scan_kwargs)
     scanner.scan()
-    results = scanner.parse()
-
-    if not parser.try_output(results):
-        for result in results:
-            print(result)
+    scanner.parse()
+    scanner.output()
 
 
 if __name__ == '__main__':

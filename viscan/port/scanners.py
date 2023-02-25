@@ -5,11 +5,13 @@ import scapy.all as sp
 
 from typing import Any, Tuple, List, Mapping
 
+from ..generic.base import FinalResultMixin
 from ..generic.pcap import PcapScanner, PcapScanMixin, FilterMixin
 from ..utils.decorators import override
 
 
-class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
+class PortScanner(FinalResultMixin[List[Tuple[str, int, str]]], FilterMixin,
+                  PcapScanMixin, PcapScanner):
     targets: List[Tuple[str, int]]
     port: int
 
@@ -41,7 +43,8 @@ class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
     def get_filter_context(self) -> Mapping[str, Any]:
         return {'port': self.port}
 
-    def parse(self) -> List[Tuple[str, int, str]]:
+    @override(FinalResultMixin)
+    def parse(self):
         results = []
         for result in self.results:
             try:
@@ -56,4 +59,9 @@ class PortScanner(FilterMixin, PcapScanMixin, PcapScanner):
                     raise ValueError('invalid tcp flags')
             except Exception as e:
                 self.logger.warning('except while parsing: %s', e)
-        return results
+        self.final_result = results
+
+    @override(FinalResultMixin)
+    def print(self):
+        for addr, port, state in self.final_result:
+            print(f'[{addr}]:{port}\t{state}')

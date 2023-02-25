@@ -17,11 +17,8 @@ def main():
                                 **parser.scan_kwargs)
 
     scanner.scan()
-    results = scanner.parse()
-
-    if not parser.try_output(results):
-        for i, addr in enumerate(results):
-            print(f'{i+1}\t{addr}')
+    scanner.parse()
+    scanner.output()
 
 
 if __name__ == '__main__':

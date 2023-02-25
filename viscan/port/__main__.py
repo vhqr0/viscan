@@ -23,11 +23,8 @@ def main():
     scanner = PortScanner(targets, **parser.scan_kwargs)
 
     scanner.scan()
-    results = scanner.parse()
-
-    if not parser.try_output(results):
-        for addr, port, state in results:
-            print(f'[{addr}]:{port}\t{state}')
+    scanner.parse()
+    scanner.output()
 
 
 if __name__ == '__main__':

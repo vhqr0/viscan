@@ -16,11 +16,8 @@ def main():
                                 closed_port=closed_port,
                                 **parser.scan_kwargs)
     scanner.scan()
-    results = scanner.parse()
-
-    if not parser.try_output(results):
-        for name, fp in results.items():
-            print(f'{name}\t{fp}')
+    scanner.parse()
+    scanner.output()
 
 
 if __name__ == '__main__':

@@ -11,11 +11,8 @@ def main():
     scanner = DHCPPinger(target=target, **parser.scan_kwargs)
 
     scanner.scan()
-    results = scanner.parse()
-
-    if not parser.try_output(results):
-        for k, v in results.items():
-            print(f'{k}:\t{v}')
+    scanner.parse()
+    scanner.output()
 
 
 if __name__ == '__main__':

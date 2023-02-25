@@ -164,7 +164,7 @@ class NmapT1Scanner(NmapTCPOpenScanner):
         return super().prepare_pkts()
 
     @override(NmapTCPOpenScanner)
-    def parse(self) -> List[Optional[bytes]]:
+    def parse(self):
         results: List[Optional[bytes]] = [None for _ in range(18)]
         for i in range(3):
             for buf in self.syn_results[i]:
@@ -172,10 +172,10 @@ class NmapT1Scanner(NmapTCPOpenScanner):
                 tcppkt = ippkt[sp.TCP]
                 j = tcppkt.ack - self.initial_seq - 1
                 if 0 <= j < 6:
-                    results[6 * i + j] = sp.raw(ippkt)
+                    results[6 * i + j] = ippkt
                 else:
                     self.logger.warning('invalid ack number')
-        return results
+        self.final_result = results
 
     @override(NmapTCPOpenScanner)
     def init_send_loop(self):

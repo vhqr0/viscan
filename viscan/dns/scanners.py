@@ -9,11 +9,11 @@ import dns.flags
 from typing import Optional, List
 
 from ..defaults import DNS_LIMIT
-from ..generic.base import BaseScanner
+from ..generic.base import BaseScanner, FinalResultMixin
 from ..utils.decorators import override
 
 
-class DNSScanner(BaseScanner):
+class DNSScanner(FinalResultMixin[List[str]], BaseScanner):
     basename: str
     limit: int
     nameserver: str
@@ -45,9 +45,6 @@ class DNSScanner(BaseScanner):
         self.skip_check_autogen = skip_check_autogen
         self.results = []
         super().__init__(**kwargs)
-
-    def parse(self) -> List[str]:
-        return self.results
 
     @override(BaseScanner)
     def scan(self):
@@ -97,3 +94,12 @@ class DNSScanner(BaseScanner):
     def get_default_nameserver(self) -> str:
         default_resolver = dns.resolver.get_default_resolver()
         return default_resolver.nameservers[0]
+
+    @override(FinalResultMixin)
+    def parse(self):
+        self.final_result = self.results
+
+    @override(FinalResultMixin)
+    def print(self):
+        for name in self.final_result:
+            print(name)

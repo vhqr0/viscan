@@ -1,13 +1,16 @@
 import time
+import json
 import threading
+import pprint
 
-from typing import Generic, TypeVar, Optional, List
+from typing import Generic, TypeVar, Any, Optional, List
 
 from ...utils.decorators import override
 from .scanners import MixinForBaseScanner
 
 PktType = TypeVar('PktType')
 ResultType = TypeVar('ResultType')
+FinalResultType = TypeVar('FinalResultType')
 
 
 class GenericSendMixin(Generic[PktType], MixinForBaseScanner):
@@ -120,3 +123,22 @@ class GenericScanMixin(GenericSendMixin[PktType],
 
         if exc is not None:
             raise exc
+
+
+class FinalResultMixin(Generic[FinalResultType], MixinForBaseScanner):
+    final_result: FinalResultType
+
+    def parse(self):
+        raise NotImplementedError
+
+    def print(self):
+        pprint.pprint(self.final_result)
+
+    def to_jsonable(self) -> Any:
+        return self.final_result
+
+    def output(self):
+        if self.output_file is not None:
+            json.dump(self.to_jsonable(), open(self.output_file))
+        else:
+            self.print()

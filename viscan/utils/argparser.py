@@ -16,11 +16,9 @@ from ..defaults import (
 
 class GenericScanArgParser(ArgumentParser):
     scan_kwargs: Dict[str, Any]
-    output_file: Optional[str]
 
     def __init__(self, *args, **kwargs):
         self.scan_kwargs = dict()
-        self.output_file = None
 
         super().__init__(*args, **kwargs)
 
@@ -57,13 +55,6 @@ class GenericScanArgParser(ArgumentParser):
         self.scan_kwargs['retry'] = args.retry
         self.scan_kwargs['timewait'] = args.timewait
         self.scan_kwargs['interval'] = args.interval
-
-        self.output_file = args.output_file
+        self.scan_kwargs['output_file'] = args.output_file
 
         return args
-
-    def try_output(self, obj: Any) -> bool:
-        if self.output_file is None:
-            return False
-        json.dump(obj, open(self.output_file, 'w'))
-        return True

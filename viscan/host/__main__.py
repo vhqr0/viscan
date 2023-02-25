@@ -22,11 +22,8 @@ def main():
     scanner = HostScanner(targets, **parser.scan_kwargs)
 
     scanner.scan()
-    results = scanner.parse()
-
-    if not parser.try_output(results):
-        for addr, state in results:
-            print(f'{addr}\t{state}')
+    scanner.parse()
+    scanner.output()
 
 
 if __name__ == '__main__':

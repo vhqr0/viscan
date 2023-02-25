@@ -4,12 +4,14 @@ import logging
 
 from typing import Tuple, List
 
+from ..generic.base import FinalResultMixin
 from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
 from ..utils.decorators import override
 from ..utils.icmp6_filter import ICMP6_ECHO_REQ
 
 
-class HostScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
+class HostScanner(FinalResultMixin[List[Tuple[str, bool]]], ICMP6SockMixin,
+                  DgramScanMixin, DgramScanner):
     targets: List[str]
     ieid: int
 
@@ -35,7 +37,8 @@ class HostScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
         ieid, = struct.unpack_from('!H', buffer=pkt[2], offset=4)
         return ieid == self.ieid
 
-    def parse(self) -> List[Tuple[str, bool]]:
+    @override(FinalResultMixin)
+    def parse(self):
         results = [(target, False) for target in self.targets]
         for pkt in self.results:
             try:
@@ -45,4 +48,10 @@ class HostScanner(ICMP6SockMixin, DgramScanMixin, DgramScanner):
                     results[seq] = (addr, True)
             except Exception as e:
                 self.logger.warning('except while parsing: %s', e)
-        return results
+        self.final_result = results
+
+    @override(FinalResultMixin)
+    def print(self):
+        for addr, state in self.final_result:
+            for addr, state in self.final_result:
+                print(f'{addr}\t{state}')

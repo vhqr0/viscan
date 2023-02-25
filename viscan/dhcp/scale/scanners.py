@@ -3,18 +3,21 @@ import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
-from typing import Optional, Tuple, List, Dict
+from typing import Any, Optional, Tuple, List, Dict
 
 from ...defaults import (
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
 )
+from ...generic.base import FinalResultMixin
 from ...utils.decorators import override
 from ..base import DHCPScanMixin, DHCPBaseScanner
-from .scale import scale
+from .algos import scale, accept_range
 
 
-class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
+class DHCPScaler(FinalResultMixin[Dict[str, Optional[Tuple[str, int, int,
+                                                           int]]]],
+                 DHCPScanMixin, DHCPBaseScanner):
     count: int
     lossrate: float
 
@@ -29,20 +32,19 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
         self.lossrate = lossrate
         super().__init__(**kwargs)
 
-    def scale(
-            self,
-            addrs: List[Optional[str]]) -> Optional[Tuple[str, str, str, str]]:
-        addrs = [addr for addr in addrs if addr is not None]
-        if len(addrs) < self.count * self.lossrate:
-            return None
-        addrs_int = [int(ipaddress.IPv6Address(addr)) for addr in addrs]
-        t, a1, a2, d = scale(addrs_int)
-        return t, str(ipaddress.IPv6Address(a1)), \
-            str(ipaddress.IPv6Address(a2)), str(ipaddress.IPv6Address(d))
+    @override(DHCPScanMixin)
+    def get_pkts(self) -> List[Tuple[str, int, bytes]]:
+        pkts = []
+        for trid in range(self.count):
+            buf = self.build_solicit(trid=trid)
+            pkts.append((self.target, 547, buf))
+        return pkts
 
-    def parse(self) -> Dict[str, Optional[Tuple[str, str, str, str]]]:
-        results: List[Tuple[Optional[str], Optional[str], Optional[str]]] = \
-            [(None, None, None) for _ in range(self.count)]
+    @override(FinalResultMixin)
+    def parse(self):
+        na_addrs: List[Optional[str]] = [None for _ in range(self.count)]
+        ta_addrs: List[Optional[str]] = [None for _ in range(self.count)]
+        pd_addrs: List[Optional[str]] = [None for _ in range(self.count)]
         for pkt in self.results:
             _, _, buf = pkt
             msg = self.parse_msg(buf)
@@ -51,21 +53,43 @@ class DHCPScaler(DHCPScanMixin, DHCPBaseScanner):
             trid = msg.trid
             if trid >= self.count:
                 continue
-            results[trid] = (
-                self.get_na(msg),
-                self.get_ta(msg),
-                self.get_pd(msg),
-            )
-        return {
-            'na_scale': self.scale([addrs[0] for addrs in results]),
-            'ta_scale': self.scale([addrs[1] for addrs in results]),
-            'pd_scale': self.scale([addrs[2] for addrs in results]),
-        }
+            na_addrs.append(self.get_na(msg))
+            ta_addrs.append(self.get_ta(msg))
+            pd_addrs.append(self.get_pd(msg))
 
-    @override(DHCPScanMixin)
-    def get_pkts(self) -> List[Tuple[str, int, bytes]]:
-        pkts = []
-        for trid in range(self.count):
-            buf = self.build_solicit(trid=trid)
-            pkts.append((self.target, 547, buf))
-        return pkts
+        results: Dict[str, Optional[Tuple[str, int, int, int]]] = dict()
+        for name, addrs in zip(('na', 'ta', 'pd'),
+                               (na_addrs, ta_addrs, pd_addrs)):
+            addrs = [addr for addr in addrs if addr is not None]
+            if len(addrs) < self.lossrate * self.count:
+                results[name] = None
+            results[name] = scale(
+                [int(ipaddress.IPv6Address(addr)) for addr in addrs])
+
+        self.final_result = results
+
+    @override(FinalResultMixin)
+    def to_jsonable(self) -> Dict[str, Optional[Dict[str, str]]]:
+        results: Dict[str, Optional[Dict[str, str]]] = dict()
+        for name, args in self.final_result.items():
+            if args is None:
+                results[name] = None
+            else:
+                t, a1, a2, d = args
+                results[name] = {
+                    't': t,
+                    'a1': str(ipaddress.IPv6Address(a1)),
+                    'a2': str(ipaddress.IPv6Address(a2)),
+                    'd': str(ipaddress.IPv6Address(d)),
+                }
+        return results
+
+    def get_accept_range(self) -> Dict[str, Optional[Tuple[int, int]]]:
+        results: Dict[str, Optional[Tuple[int, int]]] = dict()
+        for name, args in self.final_result.items():
+            if args is None:
+                results[name] = None
+            else:
+                t, a1, a2, d = args
+                results[name] = accept_range(t, a1, a2, d)
+        return results

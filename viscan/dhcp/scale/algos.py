@@ -25,3 +25,11 @@ def scale(addrs: List[int]) -> Tuple[str, int, int, int]:
     a1, a2 = min(addrs), max(addrs)
     d = math.ceil((a2 - a1) / (len(addrs) - 1))
     return 'random', a1, a2, d
+
+
+def accept_range(t: str, a1: int, a2: int, d: int) -> Tuple[int, int]:
+    if t == 'static':
+        return (a1, a2)
+    if t == 'linear':
+        return (a2, a2 + 128 * d)
+    return (a1 - 2 * d, a2 + 2 * d)
