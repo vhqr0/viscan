@@ -33,6 +33,7 @@ class BaseScanner(MixinForBaseScanner):
         self.retry = retry
         self.timewait = timewait
         self.interval = interval
+        self.output_file = output_file
 
         for k, v in kwargs.items():
             self.logger.warning('unused initial args: %s %s', k, v)
