@@ -170,8 +170,10 @@ class GenericMainMixin(MixinForBaseScanner):
         scanner.scan()
         scanner.finalize()
 
+    @classmethod
     def get_argparser(cls, *args, **kwargs) -> GenericScanArgParser:
         return GenericScanArgParser(*args, **kwargs)
 
+    @classmethod
     def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
         pass
