@@ -1,29 +1,4 @@
-from ..defaults import DNS_LIMIT
-from ..utils.argparser import GenericScanArgParser
 from .scanners import DNSScanner
 
-
-def main():
-    parser = GenericScanArgParser()
-    parser.add_limit_dwim(DNS_LIMIT)
-    args = parser.parse_args()
-
-    limit = args.limit_dwim
-    no_recursive = args.no_recursive
-    skip_check_autogen = args.skip_dwim
-    basename = args.targets[0] if len(args.targets) >= 1 else 'ip6.arpa.'
-    nameserver = args.target[1] if len(args.targets) >= 2 else None
-
-    scanner = DNSScanner(basename=basename,
-                         nameserver=nameserver,
-                         limit=limit,
-                         no_recursive=no_recursive,
-                         skip_check_autogen=skip_check_autogen,
-                         **parser.scan_kwargs)
-    scanner.scan()
-    scanner.parse()
-    scanner.output()
-
-
 if __name__ == '__main__':
-    main()
+    DNSScanner.main()

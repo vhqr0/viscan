@@ -6,14 +6,16 @@ import dns.query
 import dns.message
 import dns.flags
 
-from typing import Optional, List
+from typing import Any, Optional, List, Dict
+from argparse import Namespace
 
 from ..defaults import DNS_LIMIT
-from ..generic.base import BaseScanner, FinalResultMixin
+from ..generic.base import BaseScanner, FinalResultMixin, GenericMainMixin
 from ..utils.decorators import override
+from ..utils.argparser import GenericScanArgParser
 
 
-class DNSScanner(FinalResultMixin[List[str]], BaseScanner):
+class DNSScanner(GenericMainMixin, FinalResultMixin[List[str]], BaseScanner):
     basename: str
     limit: int
     nameserver: str
@@ -103,3 +105,23 @@ class DNSScanner(FinalResultMixin[List[str]], BaseScanner):
     def print(self):
         for name in self.final_result:
             print(name)
+
+    @classmethod
+    @override(GenericMainMixin)
+    def get_argparser(cls, *args, **kwargs) -> GenericScanArgParser:
+        parser = super().get_argparser(*args, **kwargs)
+        parser.add_limit_dwim(DNS_LIMIT)
+        return parser
+
+    @classmethod
+    @override(GenericMainMixin)
+    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
+        super().add_scan_kwargs(raw_args, scan_kwargs)
+        scan_kwargs['limit'] = raw_args.limit_dwim
+        scan_kwargs['no_recursive'] = raw_args.no_recursive
+        scan_kwargs['skip_check_autogen'] = raw_args.skip_dwim
+        scan_kwargs['basename'] = raw_args.base
+        scan_kwargs['basename'] = raw_args.targets[0] \
+            if len(raw_args.targets) >= 1 else 'ip6.arpa.'
+        scan_kwargs['nameserver'] = raw_args.target[1] \
+            if len(raw_args.targets) >= 2 else None

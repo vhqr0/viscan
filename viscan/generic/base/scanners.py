@@ -17,8 +17,14 @@ class MixinForBaseScanner:
     output_file: Optional[str]
     logger: logging.Logger
 
+    def run(self):
+        super().run()
+
     def scan(self):
         super().scan()
+
+    def finalize(self):
+        super().finalize()
 
 
 class BaseScanner(MixinForBaseScanner):
@@ -38,6 +44,15 @@ class BaseScanner(MixinForBaseScanner):
         for k, v in kwargs.items():
             self.logger.warning('unused initial args: %s %s', k, v)
 
+    @classmethod
+    @override(MixinForBaseScanner)
+    def main(cls, *args, **kwargs):
+        raise NotImplementedError
+
     @override(MixinForBaseScanner)
     def scan(self):
+        raise NotImplementedError
+
+    @override(MixinForBaseScanner)
+    def finalize(self):
         raise NotImplementedError

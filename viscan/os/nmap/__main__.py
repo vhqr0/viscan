@@ -15,9 +15,9 @@ def main():
                                 open_port=open_port,
                                 closed_port=closed_port,
                                 **parser.scan_kwargs)
+
     scanner.scan()
-    scanner.parse()
-    scanner.output()
+    scanner.finalize()
 
 
 if __name__ == '__main__':

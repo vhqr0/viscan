@@ -23,9 +23,9 @@ def main():
                          count=count,
                          lossrate=lossrate,
                          **parser.scan_kwargs)
+
     scanner.scan()
-    scanner.parse()
-    scanner.output()
+    scanner.finalize()
 
 
 if __name__ == '__main__':

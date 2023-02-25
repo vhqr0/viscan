@@ -3,9 +3,11 @@ import json
 import threading
 import pprint
 
-from typing import Generic, TypeVar, Any, Optional, List
+from typing import Generic, TypeVar, Any, Optional, List, Dict
+from argparse import Namespace
 
 from ...utils.decorators import override
+from ...utils.argparser import GenericScanArgParser
 from .scanners import MixinForBaseScanner
 
 PktType = TypeVar('PktType')
@@ -128,6 +130,15 @@ class GenericScanMixin(GenericSendMixin[PktType],
 class FinalResultMixin(Generic[FinalResultType], MixinForBaseScanner):
     final_result: FinalResultType
 
+    @override(MixinForBaseScanner)
+    def finalize(self):
+        try:
+            self.parse()
+            self.output()
+        except Exception as e:
+            self.logger.error('except while finalizing: %s', e)
+            raise
+
     def parse(self):
         raise NotImplementedError
 
@@ -139,6 +150,28 @@ class FinalResultMixin(Generic[FinalResultType], MixinForBaseScanner):
 
     def output(self):
         if self.output_file is not None:
-            json.dump(self.to_jsonable(), open(self.output_file, 'w'))
+            data = self.to_jsonable()
+            json.dump(data, open(self.output_file, 'w'))
         else:
             self.print()
+
+
+class GenericMainMixin(MixinForBaseScanner):
+
+    @classmethod
+    @override(MixinForBaseScanner)
+    def main(cls, *args, **kwargs):
+        parser = cls.get_argparser(*args, **kwargs)
+        raw_args = parser.parse_args()
+        scan_kwargs = parser.scan_kwargs
+        cls.add_scan_kwargs(raw_args, scan_kwargs)
+
+        scanner = cls(**scan_kwargs)
+        scanner.scan()
+        scanner.finalize()
+
+    def get_argparser(cls, *args, **kwargs) -> GenericScanArgParser:
+        return GenericScanArgParser(*args, **kwargs)
+
+    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
+        pass

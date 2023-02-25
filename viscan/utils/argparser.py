@@ -1,9 +1,8 @@
-import json
 import argparse
 
 import scapy.all as sp
 
-from typing import Any, Optional, Dict
+from typing import Any, Dict
 from argparse import ArgumentParser
 
 from ..defaults import (
