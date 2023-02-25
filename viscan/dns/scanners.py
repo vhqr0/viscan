@@ -120,7 +120,6 @@ class DNSScanner(GenericMainMixin, FinalResultMixin[List[str]], BaseScanner):
         scan_kwargs['limit'] = raw_args.limit_dwim
         scan_kwargs['no_recursive'] = raw_args.no_recursive
         scan_kwargs['skip_check_autogen'] = raw_args.skip_dwim
-        scan_kwargs['basename'] = raw_args.base
         scan_kwargs['basename'] = raw_args.targets[0] \
             if len(raw_args.targets) >= 1 else 'ip6.arpa.'
         scan_kwargs['nameserver'] = raw_args.target[1] \
