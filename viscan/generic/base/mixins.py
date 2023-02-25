@@ -139,6 +139,6 @@ class FinalResultMixin(Generic[FinalResultType], MixinForBaseScanner):
 
     def output(self):
         if self.output_file is not None:
-            json.dump(self.to_jsonable(), open(self.output_file))
+            json.dump(self.to_jsonable(), open(self.output_file, 'w'))
         else:
             self.print()
