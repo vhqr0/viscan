@@ -1,17 +1,20 @@
+import sys
 import random
 import struct
 import logging
 
-from typing import Tuple, List
+from typing import Any, Tuple, List, Dict
+from argparse import Namespace
 
-from ..generic.base import FinalResultMixin
+from ..generic.base import FinalResultMixin, GenericMainMixin
 from ..generic.dgram import DgramScanner, DgramScanMixin, ICMP6SockMixin
 from ..utils.decorators import override
+from ..utils.generators import AddrGenerator
 from ..utils.icmp6_filter import ICMP6_ECHO_REQ
 
 
-class HostScanner(FinalResultMixin[List[Tuple[str, bool]]], ICMP6SockMixin,
-                  DgramScanMixin, DgramScanner):
+class HostScanner(GenericMainMixin, FinalResultMixin[List[Tuple[str, bool]]],
+                  ICMP6SockMixin, DgramScanMixin, DgramScanner):
     targets: List[str]
     ieid: int
 
@@ -55,3 +58,19 @@ class HostScanner(FinalResultMixin[List[Tuple[str, bool]]], ICMP6SockMixin,
         for addr, state in self.final_result:
             for addr, state in self.final_result:
                 print(f'{addr}\t{state}')
+
+    @classmethod
+    @override(GenericMainMixin)
+    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
+        super().add_scan_kwargs(raw_args, scan_kwargs)
+
+        addrs = raw_args.targets
+
+        if len(addrs) == 0:
+            for line in sys.stdin:
+                line = line.strip()
+                if len(line) == 0 or line[0] == '#':
+                    continue
+                addrs.append(line)
+
+        scan_kwargs['targets'] = list(AddrGenerator(addrs).addrs)

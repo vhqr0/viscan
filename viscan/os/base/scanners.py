@@ -5,10 +5,12 @@ import logging
 import scapy.all as sp
 
 from typing import Any, Type, Optional, List, Dict
+from argparse import Namespace
 
-from ...generic.base import BaseScanner, FinalResultMixin
+from ...generic.base import BaseScanner, FinalResultMixin, GenericMainMixin
 from ...generic.pcap import PcapScanner, MixinForPcapScanner
 from ...utils.decorators import override
+from ...utils.generators import AddrGenerator
 
 
 class MixinForOSBaseScanner(FinalResultMixin[List[Optional[sp.IPv6]]],
@@ -39,7 +41,8 @@ class OSBaseScanner(PcapScanner, MixinForOSBaseScanner):
         super().__init__(**kwargs)
 
 
-class OSBaseFingerPrinter(FinalResultMixin[Dict[str, Optional[sp.IPv6]]],
+class OSBaseFingerPrinter(GenericMainMixin,
+                          FinalResultMixin[Dict[str, Optional[sp.IPv6]]],
                           BaseScanner):
     kwargs: Dict[str, Any]
     results: Dict[str, Optional[sp.IPv6]]
@@ -89,3 +92,11 @@ class OSBaseFingerPrinter(FinalResultMixin[Dict[str, Optional[sp.IPv6]]],
             else:
                 results[name] = base64.b64encode(sp.raw(pkt)).decode()
         return results
+
+    @classmethod
+    @override(GenericMainMixin)
+    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
+        super().add_scan_kwargs(raw_args, scan_kwargs)
+        scan_kwargs['open_port'] = raw_args.open_port
+        scan_kwargs['closed_port'] = raw_args.closed_port
+        scan_kwargs['target'] = AddrGenerator.resolve(raw_args.targets[0])

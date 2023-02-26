@@ -3,19 +3,23 @@ import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
-from typing import Optional, Tuple, List, Dict
+from typing import Any, Optional, Tuple, List, Dict
+from argparse import Namespace
 
 from ...defaults import (
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
 )
-from ...generic.base import FinalResultMixin
+from ...generic.base import FinalResultMixin, GenericMainMixin
 from ...utils.decorators import override
+from ...utils.argparser import GenericScanArgParser
+from ...utils.generators import AddrGenerator
 from ..base import DHCPScanMixin, DHCPBaseScanner
 from .algos import scale, accept_range
 
 
-class DHCPScaler(FinalResultMixin[Dict[str, Optional[Tuple[str, int, int,
+class DHCPScaler(GenericMainMixin,
+                 FinalResultMixin[Dict[str, Optional[Tuple[str, int, int,
                                                            int]]]],
                  DHCPScanMixin, DHCPBaseScanner):
     count: int
@@ -107,3 +111,19 @@ class DHCPScaler(FinalResultMixin[Dict[str, Optional[Tuple[str, int, int,
                 t, a1, a2, d = args
                 results[name] = accept_range(t, a1, a2, d)
         return results
+
+    @classmethod
+    @override(GenericMainMixin)
+    def get_argparser(cls, *args, **kwargs) -> GenericScanArgParser:
+        parser = super().get_argparser(*args, **kwargs)
+        parser.add_count_dwim(DHCP_SCALE_COUNT)
+        parser.add_lossrate_dwim(DHCP_SCALE_LOSSRATE)
+        return parser
+
+    @classmethod
+    @override(GenericMainMixin)
+    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
+        super().add_scan_kwargs(raw_args, scan_kwargs)
+        scan_kwargs['count'] = raw_args.count_dwim
+        scan_kwargs['lossrate'] = raw_args.lossrate_dwim
+        scan_kwargs['target'] = AddrGenerator.resolve(raw_args.targets[0])
