@@ -40,6 +40,10 @@ class OSBaseScanner(PcapScanner, MixinForOSBaseScanner):
         self.port = random.getrandbits(16)
         super().__init__(**kwargs)
 
+    @override(MixinForOSBaseScanner)
+    def update_fp(self, fp: Dict[str, Optional[sp.IPv6]]):
+        raise NotImplementedError
+
 
 class OSBaseFingerPrinter(GenericMainMixin,
                           FinalResultMixin[Dict[str, Optional[sp.IPv6]]],
@@ -77,11 +81,10 @@ class OSBaseFingerPrinter(GenericMainMixin,
     @override(FinalResultMixin)
     def print(self):
         for name, pkt in self.final_result.items():
-            print(f'name: {name}')
             if pkt is None:
-                print(None)
+                print(f'{name}: None')
             else:
-                pkt.show()
+                print(f'{name}: {pkt.summary()}')
 
     @override(FinalResultMixin)
     def to_jsonable(self) -> Dict[str, Optional[str]]:

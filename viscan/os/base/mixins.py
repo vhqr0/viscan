@@ -18,11 +18,9 @@ class OSScanMixin(PcapScanMixin, MixinForOSBaseScanner):
 
     @override(MixinForOSBaseScanner)
     def update_fp(self, fp: Dict[str, Optional[sp.IPv6]]):
-        if len(self.fp_names) == 0:
-            raise NotImplementedError
         try:
-            for name, result in zip(self.fp_names, self.final_result):
-                fp[name] = result
+            for name, pkt in zip(self.fp_names, self.final_result):
+                fp[name] = pkt
         except Exception as e:
             self.logger.error('except while parsing: %s', e)
 
@@ -35,18 +33,18 @@ class OSScanMixin(PcapScanMixin, MixinForOSBaseScanner):
 
     @override(MixinForOSBaseScanner)
     def print(self):
-        for pkt in self.final_result:
+        for name, pkt in zip(self.fp_names, self.final_result):
             if pkt is None:
-                print(None)
+                print(f'{name}: None')
             else:
-                pkt.show()
+                print(f'{name}: {pkt.summary()}')
 
     @override(MixinForOSBaseScanner)
-    def to_jsonable(self) -> List[Optional[str]]:
-        results: List[Optional[str]] = []
-        for pkt in self.results:
+    def to_jsonable(self) -> Dict[str, Optional[str]]:
+        results: Dict[str, Optional[str]] = dict()
+        for name, pkt in self.final_result:
             if pkt is None:
-                results.append(None)
+                results[name] = None
             else:
-                results.append(base64.b64encode(sp.raw(pkt)).decode())
+                results[name] = base64.b64encode(sp.raw(pkt)).decode()
         return results
