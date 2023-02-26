@@ -1,7 +1,5 @@
 import argparse
 
-import scapy.all as sp
-
 from typing import Any, Dict
 from argparse import ArgumentParser
 
@@ -22,7 +20,7 @@ class GenericScanArgParser(ArgumentParser):
         super().__init__(*args, **kwargs)
 
         self.add_argument('-o', '--output-file')
-        self.add_argument('-i', '--iface', default=str(sp.conf.iface))
+        self.add_argument('-i', '--iface')
         self.add_argument('-p', '--ports', default=POP_PORTS)
         self.add_argument('-R', '--retry', type=int, default=RETRY)
         self.add_argument('-T', '--timewait', type=float, default=TIMEWAIT)
@@ -48,7 +46,9 @@ class GenericScanArgParser(ArgumentParser):
     def parse_args(self, *args, **kwargs):
         args = super().parse_args(*args, **kwargs)
 
-        sp.conf.iface = args.iface
+        if args.iface is not None:
+            import scapy.all as sp
+            sp.conf.iface = args.iface
 
         self.scan_kwargs.clear()
         self.scan_kwargs['retry'] = args.retry
