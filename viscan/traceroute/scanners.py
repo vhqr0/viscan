@@ -53,25 +53,22 @@ class TracerouteScanner(GenericMainMixin,
         arrived = False
 
         if self.tr_round != 0:
-            if self.results:
-                for pkt in self.results:
-                    addr, _, buf = pkt
-                    ietype, _, _, ieid, seq = \
-                        struct.unpack_from('!BBHHH', buffer=buf, offset=0)
-                    if ietype == ICMP6_ECHO_REP:  # arrived
-                        if ieid == self.ieid and seq == self.tr_round:
-                            arrived = True
-                            self.tr_results.append(addr)
-                            break
-                    if ietype == ICMP6_TIME_EXCEEDED:  # continue
-                        # TODO: deeper analysis
+            for pkt in self.results:
+                addr, _, buf = pkt
+                ietype, _, _, ieid, seq = \
+                    struct.unpack_from('!BBHHH', buffer=buf, offset=0)
+                if ietype == ICMP6_ECHO_REP:  # arrived
+                    if ieid == self.ieid and seq == self.tr_round:
+                        arrived = True
                         self.tr_results.append(addr)
                         break
-                else:  # no useful results
-                    self.tr_results.append(None)
-                self.results.clear()
-            else:  # no results
+                if ietype == ICMP6_TIME_EXCEEDED:  # continue
+                    # TODO: deeper analysis
+                    self.tr_results.append(addr)
+                    break
+            else:  # no useful results
                 self.tr_results.append(None)
+            self.results.clear()
 
         self.tr_round += 1
         if arrived or self.tr_round >= self.limit:
