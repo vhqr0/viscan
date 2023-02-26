@@ -76,15 +76,14 @@ class DHCPScaler(GenericMainMixin,
     @override(FinalResultMixin)
     def print(self):
         for name, args in self.final_result.items():
-            print(f'name: {name}')
             if args is None:
-                print(None)
+                print(f'{name}: None')
             else:
                 t, a1, a2, d = args
-                print(f't: {t}')
-                print(f'a1: {ipaddress.IPv6Address(a1)}')
-                print(f'a2: {ipaddress.IPv6Address(a2)}')
-                print(f'd: {ipaddress.IPv6Address(d)}')
+                print(f'{name} t:\t{t}')
+                print(f'{name} a1:\t{ipaddress.IPv6Address(a1)}')
+                print(f'{name} a2:\t{ipaddress.IPv6Address(a2)}')
+                print(f'{name} d:\t{ipaddress.IPv6Address(d)}')
 
     @override(FinalResultMixin)
     def to_jsonable(self) -> Dict[str, Optional[Dict[str, str]]]:
