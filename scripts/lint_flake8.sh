@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-flake8 viscan/*.py
+flake8 viscan/**/*.py
