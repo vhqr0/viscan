@@ -42,7 +42,7 @@ class OSScanMixin(PcapScanMixin, MixinForOSBaseScanner):
     @override(MixinForOSBaseScanner)
     def to_jsonable(self) -> Dict[str, Optional[str]]:
         results: Dict[str, Optional[str]] = dict()
-        for name, pkt in self.final_result:
+        for name, pkt in zip(self.fp_names, self.final_result):
             if pkt is None:
                 results[name] = None
             else:

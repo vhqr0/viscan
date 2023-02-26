@@ -14,9 +14,8 @@ from ..base import DHCPScanMixin, DHCPBaseScanner
 
 
 class DHCPPinger(GenericMainMixin,
-                 FinalResultMixin[Tuple[Optional[dhcp6.DHCP6_Reply],
-                                        Optional[dhcp6.DHCP6_Advertise]]],
-                 DHCPScanMixin, DHCPBaseScanner):
+                 FinalResultMixin[List[Optional[dhcp6.DHCP6]]], DHCPScanMixin,
+                 DHCPBaseScanner):
     dhcp_reply: Optional[dhcp6.DHCP6_Reply]
     dhcp_advertise: Optional[dhcp6.DHCP6_Advertise]
 
@@ -25,8 +24,7 @@ class DHCPPinger(GenericMainMixin,
     # override DHCPScanMixin
     stateless = False
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
+    fp_names = ['reply', 'advertise']
 
     @override(DHCPScanMixin)
     def get_pkts(self) -> List[Tuple[str, int, bytes]]:
@@ -67,21 +65,20 @@ class DHCPPinger(GenericMainMixin,
 
     @override(FinalResultMixin)
     def parse(self):
-        self.final_result = (self.dhcp_reply, self.dhcp_advertise)
+        self.final_result = [self.dhcp_reply, self.dhcp_advertise]
 
     @override(FinalResultMixin)
     def print(self):
-        for name, pkt in zip(('reply', 'advertise'), self.final_result):
-            print(f'name: {name}')
+        for name, pkt in zip(self.fp_names, self.final_result):
             if pkt is None:
-                print(None)
+                print(f'{name}: None')
             else:
-                pkt.show()
+                print(f'{name}: {pkt.summary()}')
 
     @override(FinalResultMixin)
     def to_jsonable(self) -> Dict[str, Optional[str]]:
         results: Dict[str, Optional[str]] = dict()
-        for name, pkt in zip(('reply', 'advertise'), self.final_result):
+        for name, pkt in zip(self.fp_names, self.final_result):
             if pkt is None:
                 results[name] = None
             else:
