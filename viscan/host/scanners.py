@@ -55,8 +55,7 @@ class HostScanner(GenericMainMixin, FinalResultMixin[List[Tuple[str, bool]]],
     @override(FinalResultMixin)
     def print(self):
         for addr, state in self.final_result:
-            for addr, state in self.final_result:
-                print(f'{addr}\t{state}')
+            print(f'{addr}\t{state}')
 
     @classmethod
     @override(GenericMainMixin)
