@@ -54,11 +54,8 @@ class SockMixin(MixinForDgramScanner):
         sock = socket.socket(family=self.get_sock_family(),
                              type=self.get_sock_type(),
                              proto=self.get_sock_proto())
-        self.prepare_sock(sock)
-        return sock
-
-    def prepare_sock(self, sock: socket.socket):
         sock.setblocking(False)
+        return sock
 
 
 class ICMP6SockMixin(SockMixin):
@@ -72,13 +69,14 @@ class ICMP6SockMixin(SockMixin):
         return self.icmp6_whitelist
 
     @override(SockMixin)
-    def prepare_sock(self, sock: socket.socket):
+    def get_sock(self) -> socket.socket:
+        sock = super().get_sock()
         icmp6_filter = ICMP6Filter()
         icmp6_filter.setblockall()
         for icmp6_type in self.get_icmp6_whitelist():
             icmp6_filter.setpass(icmp6_type)
         icmp6_filter.setsockopt(sock)
-        super().prepare_sock(sock)
+        return sock
 
 
 class UDPSockMixin(SockMixin):
@@ -91,6 +89,7 @@ class UDPSockMixin(SockMixin):
         return self.udp_addr
 
     @override(SockMixin)
-    def prepare_sock(self, sock: socket.socket):
+    def get_sock(self) -> socket.socket:
+        sock = super().get_sock()
         sock.bind(self.get_udp_addr())
-        super().prepare_sock(sock)
+        return sock
