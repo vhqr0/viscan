@@ -77,7 +77,7 @@ class DHCPScaler(GenericMainMixin,
     def print(self):
         for name, args in self.final_result.items():
             if args is None:
-                print(f'{name}: None')
+                print(f'{name}:\tNone')
             else:
                 t, a1, a2, d = args
                 print(f'{name} t:\t{t}')
