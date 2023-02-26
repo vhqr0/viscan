@@ -1,4 +1,3 @@
-import sys
 import random
 import logging
 
@@ -77,12 +76,5 @@ class PortScanner(GenericMainMixin, FinalResultMixin[List[Tuple[str, int,
 
         ports = raw_args.ports.split(',')
         addrs = raw_args.targets
-
-        if not addrs:
-            for line in sys.stdin:
-                line = line.strip()
-                if len(line) == 0 or line[0] == '#':
-                    continue
-                addrs.append(line)
 
         scan_kwargs['targets'] = AddrPortGenerator(addrs, ports).addrports

@@ -1,3 +1,4 @@
+import sys
 import argparse
 
 from typing import Any, Dict
@@ -55,5 +56,12 @@ class GenericScanArgParser(ArgumentParser):
         self.scan_kwargs['timewait'] = args.timewait
         self.scan_kwargs['interval'] = args.interval
         self.scan_kwargs['output_file'] = args.output_file
+
+        if len(args.targets) == 0:
+            for line in sys.stdin:
+                line = line.strip()
+                if len(line) == 0 or line[0] == '#':
+                    continue
+                args.targets.append(line)
 
         return args

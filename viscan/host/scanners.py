@@ -1,4 +1,3 @@
-import sys
 import random
 import struct
 import logging
@@ -65,12 +64,5 @@ class HostScanner(GenericMainMixin, FinalResultMixin[List[Tuple[str, bool]]],
         super().add_scan_kwargs(raw_args, scan_kwargs)
 
         addrs = raw_args.targets
-
-        if len(addrs) == 0:
-            for line in sys.stdin:
-                line = line.strip()
-                if len(line) == 0 or line[0] == '#':
-                    continue
-                addrs.append(line)
 
         scan_kwargs['targets'] = list(AddrGenerator(addrs).addrs)
