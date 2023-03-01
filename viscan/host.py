@@ -65,7 +65,6 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
-        kwargs['limit'] = args.limit_dwim
         kwargs['target'] = list(AddrGenerator(args.targets).addrs)
         return kwargs
 
