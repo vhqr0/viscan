@@ -99,7 +99,7 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
         sock = sock if sock is not None else self.get_sock()
         super().__init__(sock=sock, **kwargs)
         self.limit = limit
-        self.pinger = TracePinger(1, target=target, sock=sock, **kwargs)
+        self.pinger = TracePinger(hop=1, target=target, sock=sock, **kwargs)
 
     @override(ICMP6Scanner)
     def scan_and_parse(self):
