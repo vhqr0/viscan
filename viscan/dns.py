@@ -5,11 +5,13 @@ import dns.resolver
 import dns.query
 import dns.message
 
-from typing import Optional
+from typing import Any, Optional
+from argparse import Namespace
 
 from .defaults import DNS_LIMIT
 from .common.base import ResultParser, BaseScanner, MainRunner
 from .common.decorators import override
+from .common.argparser import ScanArgParser
 
 
 class DNSScanner(ResultParser[list[str]], MainRunner, BaseScanner):
@@ -92,6 +94,26 @@ class DNSScanner(ResultParser[list[str]], MainRunner, BaseScanner):
     def get_nameserver(self) -> str:
         resolver = dns.resolver.get_default_resolver()
         return resolver.nameservers[0]
+
+    @classmethod
+    @override(MainRunner)
+    def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
+        parser = super().get_argparser(*args, **kwargs)
+        parser.add_limit_dwim(DNS_LIMIT)
+        return parser
+
+    @classmethod
+    @override(MainRunner)
+    def parse_args(cls, args: Namespace) -> dict[str, Any]:
+        kwargs = super().parse_args(args)
+        kwargs['limit'] = args.limit_dwim
+        kwargs['no_recursive'] = args.no_dwim
+        kwargs['skip_check_autogen'] = args.skip_dwim
+        kwargs['basename'] = args.targets[0] \
+            if len(args.targets) >= 1 else 'ip6.arpa.'
+        kwargs['nameserver'] = args.targets[1] \
+            if len(args.targets) >= 2 else None
+        return kwargs
 
 
 if __name__ == '__main__':
