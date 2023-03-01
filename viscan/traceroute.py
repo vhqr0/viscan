@@ -97,14 +97,14 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
 
     @override(ICMP6Scanner)
     def scan_and_parse(self):
-        results: Optional[str] = []
+        results: list[Optional[str]] = []
         while self.pinger.hop <= self.limit:
             result = self.pinger.ping()
             if result is None:
                 results.append(None)
             else:
                 addr, arrived = result
-                result.append(addr)
+                results.append(addr)
                 if arrived:
                     break
         self.result = results
