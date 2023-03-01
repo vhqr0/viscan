@@ -1,8 +1,6 @@
 import socket
 import struct
 
-from typing import List
-
 ICMP6_DEST_UNREADH = 1
 ICMP6_PKT_TOOBIG = 2
 ICMP6_TIME_EXCEEDED = 3
@@ -19,7 +17,7 @@ SO_ICMP6_FILTER = 1
 
 class ICMP6Filter:
 
-    filter: List[int]
+    filter: list[int]
 
     def __init__(self):
         self.filter = [0 for _ in range(8)]
