@@ -47,6 +47,7 @@ class PcapScanner(SRScanner[inet6.IPv6, bytes], MainRunner):
         else:
             spsend(pkt, iface=self.iface, verbose=0)
 
+    @classmethod
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         iface = args.iface
