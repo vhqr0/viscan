@@ -42,6 +42,7 @@ class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
                         results[seq] = (ippkt.src, tcppkt.sport, 'open')
             except Exception as e:
                 self.logger.warning('except while parsing: %s', e)
+        self.result = results
 
     @override(ResultParser)
     def show(self):

@@ -23,7 +23,7 @@ class PcapScanner(SRScanner[inet6.IPv6, bytes], MainRunner):
         raise NotImplementedError
 
     def get_sniffer(self) -> pcap:
-        sniffer = pcap(name=self.iface, promic=False, timeout_ms=1)
+        sniffer = pcap(name=self.iface, promisc=False, timeout_ms=1)
         sniffer.setfilter(self.get_filter())
         sniffer.setnonblock()
         return sniffer
