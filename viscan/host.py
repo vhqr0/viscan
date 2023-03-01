@@ -27,8 +27,10 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
         for pkt in self.recv_pkts:
             try:
                 addr, _, buf = pkt
-                seq, = struct.unpack_from('!H', buffer=buf, offset=6)
-                if seq <= len(results) and addr == results[seq][0]:
+                port, seq = struct.unpack_from('!HH', buffer=buf, offset=4)
+                if port == self.port and \
+                   seq <= len(results) and \
+                   addr == results[seq][0]:
                     results[seq] = (addr, True)
             except Exception as e:
                 self.logger.warning('except while parsing: %s', e)
@@ -51,15 +53,6 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
     @override(ICMP6Scanner)
     def send(self):
         self.send_pkts_with_timewait()
-
-    @override(ICMP6Scanner)
-    def recv_filter(self, pkt: tuple[str, int, bytes]) -> bool:
-        try:
-            _, _, buf = pkt
-            port, = struct.unpack_from('!H', buffer=buf, offset=4)
-            return port == self.port
-        except Exception:
-            return False
 
     @classmethod
     @override(MainRunner)
