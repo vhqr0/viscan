@@ -83,17 +83,22 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
 
 class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     limit: int
+    target: str
     pinger: TracePinger
 
     logger = logging.getLogger('tracerouter')
 
     icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
 
-    def __init__(self, limit: int = TRACEROUTE_LIMIT, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self,
+                 target: str,
+                 limit: int = TRACEROUTE_LIMIT,
+                 sock: Optional[socket.socket] = None,
+                 **kwargs):
+        sock = sock if sock is not None else self.get_sock()
+        super().__init__(sock=sock, **kwargs)
         self.limit = limit
-        kwargs['sock'] = self.sock  # override if exists
-        self.pinger = TracePinger(1, **kwargs)
+        self.pinger = TracePinger(1, target=target, sock=sock, **kwargs)
 
     @override(ICMP6Scanner)
     def scan_and_parse(self):
