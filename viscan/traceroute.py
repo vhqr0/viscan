@@ -112,6 +112,7 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
                 results.append(addr)
                 if arrived:
                     break
+            self.pinger.hop += 1
         self.result = results
 
     @override(ResultParser)
