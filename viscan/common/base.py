@@ -31,12 +31,12 @@ class BaseScanner:
         try:
             self.scan()
         except Exception as e:
-            self.logger.error('except while scanning: %s', e)
+            self.logger.error('error while scanning: %s', e)
 
         try:
             self.parse()
         except Exception as e:
-            self.logger.error('except while parsing: %s', e)
+            self.logger.error('error while parsing: %s', e)
 
     def scan_and_export(self):
         self.scan_and_parse()
@@ -44,7 +44,7 @@ class BaseScanner:
         try:
             self.export()
         except Exception as e:
-            self.logger.error('except while exporting: %s', e)
+            self.logger.error('error while exporting: %s', e)
 
     def scan(self):
         raise NotImplementedError

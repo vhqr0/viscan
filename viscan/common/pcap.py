@@ -5,13 +5,14 @@ from scapy.config import conf as spconf
 from scapy.sendrecv import send as spsend
 import scapy.layers.inet6 as inet6
 
-from typing import Optional
+from typing import Any, Optional
+from argparse import Namespace
 
-from .base import SRScanner
+from .base import SRScanner, MainRunner
 from .decorators import override
 
 
-class PcapScanner(SRScanner[inet6.IPv6, bytes]):
+class PcapScanner(SRScanner[inet6.IPv6, bytes], MainRunner):
     iface: str
 
     def __init__(self, iface: Optional[str] = None, **kwargs):
@@ -45,3 +46,10 @@ class PcapScanner(SRScanner[inet6.IPv6, bytes]):
             self.logger.warning('dst to other iface: %s', dst)
         else:
             spsend(pkt, iface=self.iface, verbose=0)
+
+    @override(MainRunner)
+    def parse_args(cls, args: Namespace) -> dict[str, Any]:
+        iface = args.iface
+        if iface is not None:
+            spconf.iface = iface
+        return super().parse_args(args)
