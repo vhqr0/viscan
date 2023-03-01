@@ -34,7 +34,7 @@ class DNSScanner(ResultParser[list[str]], MainRunner, BaseScanner):
                  skip_check_autogen: bool = False,
                  **kwargs):
         super().__init__(**kwargs)
-        if not self.basename.endswith(self.SUFFIX):
+        if not basename.endswith(self.SUFFIX):
             raise ValueError(f'invalid base name: {basename}')
         self.basename = basename
         self.nameserver = nameserver if nameserver is not None else \
