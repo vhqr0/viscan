@@ -35,7 +35,7 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
         self.result = results
 
     @override(ResultParser)
-    def print(self):
+    def show(self):
         for addr, state in self.result:
             print(f'{addr}\t{state}')
 
