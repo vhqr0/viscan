@@ -32,11 +32,13 @@ class BaseScanner:
             self.scan()
         except Exception as e:
             self.logger.error('error while scanning: %s', e)
+            raise
 
         try:
             self.parse()
         except Exception as e:
             self.logger.error('error while parsing: %s', e)
+            raise
 
     def scan_and_export(self):
         self.scan_and_parse()
@@ -45,6 +47,7 @@ class BaseScanner:
             self.export()
         except Exception as e:
             self.logger.error('error while exporting: %s', e)
+            raise
 
     def scan(self):
         raise NotImplementedError
