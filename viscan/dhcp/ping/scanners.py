@@ -1,20 +1,17 @@
 import base64
 import logging
 
-from typing import Any, Optional, Tuple, List, Dict
-from argparse import Namespace
+from typing import Optional, Tuple, List, Dict
 
 import scapy.all as sp
 import scapy.layers.dhcp6 as dhcp6
 
-from ...generic.base import FinalResultMixin, GenericMainMixin
+from ...generic.base import FinalResultMixin
 from ...utils.decorators import override
-from ...utils.generators import AddrGenerator
-from ..base import DHCPScanMixin, DHCPBaseScanner
+from ..base import DHCPBaseScanner, DHCPScanMixin
 
 
-class DHCPPinger(GenericMainMixin,
-                 FinalResultMixin[List[Optional[dhcp6.DHCP6]]], DHCPScanMixin,
+class DHCPPinger(FinalResultMixin[List[Optional[dhcp6.DHCP6]]], DHCPScanMixin,
                  DHCPBaseScanner):
     dhcp_reply: Optional[dhcp6.DHCP6_Reply]
     dhcp_advertise: Optional[dhcp6.DHCP6_Advertise]
@@ -84,9 +81,3 @@ class DHCPPinger(GenericMainMixin,
             else:
                 results[name] = base64.b64encode(sp.raw(pkt)).decode()
         return results
-
-    @classmethod
-    @override(GenericMainMixin)
-    def add_scan_kwargs(cls, raw_args: Namespace, scan_kwargs: Dict[str, Any]):
-        super().add_scan_kwargs(raw_args, scan_kwargs)
-        scan_kwargs['target'] = AddrGenerator.resolve(raw_args.targets[0])

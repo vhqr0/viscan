@@ -35,6 +35,9 @@ class GenericScanArgParser(ArgumentParser):
     def add_count_dwim(self, count: int):
         self.add_argument('-c', '--count-dwim', type=int, default=count)
 
+    def add_step_dwim(self, step: int):
+        self.add_argument('-s', '--step-dwim', type=int, default=step)
+
     def add_limit_dwim(self, limit: int):
         self.add_argument('-L', '--limit-dwim', type=int, default=limit)
 
