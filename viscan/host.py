@@ -36,7 +36,7 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
                    addr == results[seq][0]:
                     results[seq] = (addr, True)
             except Exception as e:
-                self.logger.warning('except while parsing: %s', e)
+                self.logger.debug('except while parsing: %s', e)
         self.result = results
 
     @override(ResultParser)

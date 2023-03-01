@@ -59,7 +59,7 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
                     self.result = (addr, False)
                     return
             except Exception as e:
-                self.logger.warning('except while parsing: %s', e)
+                self.logger.debug('except while parsing: %s', e)
         raise RuntimeError('no response')
 
     @override(ICMP6Scanner)
