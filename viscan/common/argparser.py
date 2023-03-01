@@ -18,6 +18,7 @@ class ScanArgParser(ArgumentParser):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+        self.add_argument('-d', '--debug', action='store_true')
         self.add_argument('-o', '--output-path')
         self.add_argument('-i', '--iface')
         self.add_argument('-p', '--ports', default=POP_PORTS)
