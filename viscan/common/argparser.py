@@ -45,7 +45,7 @@ class ScanArgParser(ArgumentParser):
                           type=float,
                           default=lossrate)
 
-    def parse_args(*args, **kwargs) -> Namespace:
+    def parse_args(self, *args, **kwargs) -> Namespace:
         args = super().parse_args(*args, **kwargs)
         debug = args.debug
         level = 'DEBUG' if debug else 'INFO'
