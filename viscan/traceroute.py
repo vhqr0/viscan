@@ -30,7 +30,7 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
         self.port = random.getrandbits(16)
 
     def ping(self) -> Optional[tuple[str, bool]]:
-        for _ in self.retry:
+        for _ in range(self.retry):
             try:
                 self.scan_and_parse()
                 if self.result is not None:
