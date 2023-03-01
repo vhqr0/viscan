@@ -31,8 +31,9 @@ class DNSScanner(ResultParser[list[str]], MainRunner, BaseScanner):
                  nameserver: Optional[str] = None,
                  limit: int = DNS_LIMIT,
                  no_recursive: bool = False,
-                 skip_check_autogen: bool = False):
-        super().__init__()
+                 skip_check_autogen: bool = False,
+                 **kwargs):
+        super().__init__(**kwargs)
         if not self.basename.endswith(self.SUFFIX):
             raise ValueError(f'invalid base name: {basename}')
         self.basename = basename
