@@ -12,7 +12,7 @@ from .common.base import ResultParser, BaseScanner, MainRunner
 from .common.decorators import override
 
 
-class DNSScanner(ResultParser[list[str]], BaseScanner, MainRunner):
+class DNSScanner(ResultParser[list[str]], MainRunner, BaseScanner):
     basename: str
     nameserver: str
     limit: int
