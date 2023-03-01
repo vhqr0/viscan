@@ -66,6 +66,10 @@ class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
             pkts.append(pkt)
         return pkts
 
+    @override(PcapScanner)
+    def send(self):
+        self.send_pkts_with_timewait()
+
     @classmethod
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
