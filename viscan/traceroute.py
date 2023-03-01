@@ -126,6 +126,7 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
         kwargs['limit'] = args.limit_dwim
+        kwargs['target'] = args.targets[0]
         return kwargs
 
 
