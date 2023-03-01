@@ -1,5 +1,6 @@
 import random
 import struct
+import logging
 
 from typing import Any
 from argparse import Namespace
@@ -15,6 +16,8 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
                   MainRunner):
     targets: list[str]
     port: int
+
+    logger = logging.getLogger('host_scanner')
 
     def __init__(self, targets: list[str], **kwargs):
         super().__init__(**kwargs)

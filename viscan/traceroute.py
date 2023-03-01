@@ -24,10 +24,12 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
     hop: int
     port: int
 
-    def __init__(self, hop: int, target: str, **kwargs):
+    logger = logging.getLogger('tracepinger')
+
+    def __init__(self, target: str, hop: int = 1, **kwargs):
         super().__init__(**kwargs)
-        self.hop = hop
         self.target = target
+        self.hop = hop
         self.port = random.getrandbits(16)
 
     def ping(self) -> Optional[tuple[str, bool]]:
@@ -83,8 +85,8 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
 
 
 class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
-    limit: int
     target: str
+    limit: int
     pinger: TracePinger
 
     logger = logging.getLogger('tracerouter')

@@ -1,4 +1,5 @@
 import random
+import logging
 
 import scapy.layers.l2 as l2
 import scapy.layers.inet as inet
@@ -17,6 +18,8 @@ class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
                   MainRunner):
     targets: list[tuple[str, int]]
     port: int
+
+    logger = logging.getLogger('port_scanner')
 
     def __init__(self, targets: list[tuple[str, int]], **kwargs):
         super().__init__(**kwargs)
