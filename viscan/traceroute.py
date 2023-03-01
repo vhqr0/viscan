@@ -117,7 +117,7 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     @classmethod
     @override(MainRunner)
     def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
-        parser = cls.get_argparser(*args, **kwargs)
+        parser = super().get_argparser(*args, **kwargs)
         parser.add_limit_dwim(TRACEROUTE_LIMIT)
         return parser
 
