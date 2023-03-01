@@ -40,7 +40,7 @@ class DNSScanner(ResultParser[list[str]], BaseScanner, MainRunner):
         self.no_recursive = no_recursive
         self.skip_check_autogen = skip_check_autogen
 
-    @override(MainRunner)
+    @override(ResultParser)
     def show(self):
         for name in self.result:
             print(name)
