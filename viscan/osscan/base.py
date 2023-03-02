@@ -36,7 +36,7 @@ class OSFingerPrinter(FingerPrinter, PcapScanner, MainRunner):
 
     @override(PcapScanner)
     def send(self):
-        self.send_pkts_with_timewait()
+        self.send_pkts_with_retry()
 
     @override(FingerPrinter)
     def parse_fps(self) -> list[Optional[Packet]]:
