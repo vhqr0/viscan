@@ -43,7 +43,7 @@ class NmapTECNFingerPrinter(NmapTCPOpenPortFingerPrinter):
     fp_names = ['TECN']
 
     @override(NmapTCPOpenPortFingerPrinter)
-    def get_pkt(self) -> inet.IPv6:
+    def get_pkt(self) -> inet6.IPv6:
         pkt = inet6.IPv6(dst=self.target) / \
             inet.TCP(sport=self.port,
                      dport=self.target_port,
