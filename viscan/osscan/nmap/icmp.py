@@ -68,7 +68,7 @@ class NmapIE2FingerPrinter(OSFingerPrinter):
 
     @override(OSFingerPrinter)
     def get_pkt(self) -> inet6.IPv6:
-        pkt = inet6.IPv6(target=self.target) / \
+        pkt = inet6.IPv6(dst=self.target) / \
             inet6.IPv6ExtHdrHopByHop(options=[Pad4]) / \
             inet6.IPv6ExtHdrDestOpt(options=[Pad4]) / \
             inet6.IPv6ExtHdrRouting() / \
