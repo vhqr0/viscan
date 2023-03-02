@@ -7,10 +7,10 @@ from typing import Any, Optional
 from argparse import Namespace
 
 from ..defaults import (
-    DHCP_LOCATE_STEP,
-    DHCP_ACCEPT_RETRY,
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
+    DHCP_LOCATE_STEP,
+    DHCP_LOCATE_ACCEPT_RETRY,
 )
 from ..common.base import ResultParser, MainRunner
 from ..common.dgram import UDPScanner
@@ -22,10 +22,10 @@ from ..common.generators import AddrGenerator
 class DHCPBaseScanner(UDPScanner, MainRunner):
     target: str
     linkaddr: str
-    step: int
-    accept_retry: int
     count: int
     lossrate: float
+    step: int
+    accept_retry: int
     duid: dhcp6.DUID_LL
 
     udp_addr = ('::', 547)
@@ -33,18 +33,18 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     def __init__(self,
                  target: str,
                  linkaddr: Optional[str] = None,
-                 step: int = DHCP_LOCATE_STEP,
-                 accept_retry: int = DHCP_ACCEPT_RETRY,
                  count: int = DHCP_SCALE_COUNT,
                  lossrate: float = DHCP_SCALE_LOSSRATE,
+                 step: int = DHCP_LOCATE_STEP,
+                 accept_retry: int = DHCP_LOCATE_ACCEPT_RETRY,
                  **kwargs):
         super().__init__(**kwargs)
         self.target = target
         self.linkaddr = linkaddr if linkaddr is not None else target
-        self.step = step
-        self.accept_retry = accept_retry
         self.count = count
         self.lossrate = lossrate
+        self.step = step
+        self.accept_retry = accept_retry
         self.duid = dhcp6.DUID_LL(lladdr=random.randbytes(6))
 
     def build_inforeq(self,
@@ -115,21 +115,22 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     @override(MainRunner)
     def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
         parser = super().get_argparser(*args, **kwargs)
-        parser.add_step_dwim(DHCP_LOCATE_STEP)
         parser.add_count_dwim(DHCP_SCALE_COUNT)
         parser.add_lossrate_dwim(DHCP_SCALE_LOSSRATE)
-        parser.add_argument('--dhcp-locate-retry',
+        parser.add_step_dwim(DHCP_LOCATE_STEP)
+        parser.add_argument('--accept-retry',
                             type=int,
-                            default=DHCP_ACCEPT_RETRY)
+                            default=DHCP_LOCATE_ACCEPT_RETRY)
         return parser
 
     @classmethod
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
-        kwargs['step'] = args.step_dwim
         kwargs['count'] = args.count_dwim
         kwargs['lossrate'] = args.lossrate_dwim
+        kwargs['step'] = args.step_dwim
+        kwargs['accept_retry'] = args.accept_retry
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
         if len(args.targets) > 2:
             kwargs['linkaddr'] = AddrGenerator.resolve(args.targets[1])
