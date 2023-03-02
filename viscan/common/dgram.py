@@ -36,15 +36,16 @@ class DgramScanner(SRScanner[Pkt, Pkt]):
 
     @override(SRScanner)
     def recv(self):
-        rlist, _, _ = select.select([self.sock], [], [], 1)
-        if rlist:
-            buf, addrport = self.sock.recvfrom(4096)
-            addr, port = '', 0
-            if len(addrport) >= 1:
-                addr = addrport[0]
-            if len(addrport) >= 2:
-                port = addrport[1]
-            self.append_recv_pkt((addr, port, buf))
+        while not self.scan_done:
+            rlist, _, _ = select.select([self.sock], [], [], 1)
+            if rlist:
+                buf, addrport = self.sock.recvfrom(4096)
+                addr, port = '', 0
+                if len(addrport) >= 1:
+                    addr = addrport[0]
+                if len(addrport) >= 2:
+                    port = addrport[1]
+                self.append_recv_pkt((addr, port, buf))
 
 
 class ICMP6Scanner(DgramScanner):
