@@ -1,4 +1,5 @@
 import socket
+import logging
 
 from scapy.packet import Packet
 
@@ -29,6 +30,8 @@ class DHCPReplyFingerPrinter(FingerPrinter, DHCPBaseScanner):
 
 class DHCPAdvertiseFingerPrinter(FingerPrinter, DHCPSoliciter):
     soliciter: DHCPSoliciter
+
+    logger = logging.getLogger('dhcp_pinger')
 
     fp_names = ['advertise']
 
