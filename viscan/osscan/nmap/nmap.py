@@ -1,4 +1,13 @@
 from ..base import OSScanner
+from .tcp import (
+    NmapTECNFingerPrinter,
+    NmapT2FingerPrinter,
+    NmapT3FingerPrinter,
+    NmapT4FingerPrinter,
+    NmapT5FingerPrinter,
+    NmapT6FingerPrinter,
+    NmapT7FingerPrinter,
+)
 from .icmp import (
     NmapU1FingerPrinter,
     NmapIE1FingerPrinter,
@@ -8,6 +17,13 @@ from .icmp import (
 
 class NmapOSScanner(OSScanner):
     fp_types = [
+        NmapTECNFingerPrinter,
+        NmapT2FingerPrinter,
+        NmapT3FingerPrinter,
+        NmapT4FingerPrinter,
+        NmapT5FingerPrinter,
+        NmapT6FingerPrinter,
+        NmapT7FingerPrinter,
         NmapU1FingerPrinter,
         NmapIE1FingerPrinter,
         NmapIE2FingerPrinter,
