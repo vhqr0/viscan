@@ -55,5 +55,5 @@ class OSFingerPrinter(FingerPrinter, PcapScanner, MainRunner):
         return kwargs
 
 
-class OSScanner(OSFingerPrinter, EnsembleFingerPrinter):
+class OSScanner(EnsembleFingerPrinter, OSFingerPrinter):
     logger = logging.getLogger('os_scanner')
