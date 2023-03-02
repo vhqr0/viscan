@@ -59,7 +59,7 @@ class NmapTECNFingerPrinter(NmapTCPOpenPortFingerPrinter):
                          ('NOP', None),
                          ('NOP', None),
                      ])
-        return [pkt]
+        return pkt
 
 
 class NmapTCPSender(NmapTCPFingerPrinter):
