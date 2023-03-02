@@ -19,12 +19,12 @@ from .common.icmp6_filter import (
 )
 
 
-class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
+class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
     target: str
     hop: int
     port: int
 
-    logger = logging.getLogger('tracepinger')
+    logger = logging.getLogger('route_sub_tracer')
 
     def __init__(self, target: str, hop: int = 1, **kwargs):
         super().__init__(**kwargs)
@@ -32,7 +32,7 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
         self.hop = hop
         self.port = random.getrandbits(16)
 
-    def ping(self) -> Optional[tuple[str, bool]]:
+    def trace(self) -> Optional[tuple[str, bool]]:
         for _ in range(self.retry):
             try:
                 self.scan_and_parse()
@@ -56,6 +56,7 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
                     self.result = (addr, True)
                     return
                 if t == ICMP6_TIME_EXCEEDED:
+                    # TODO: deeper analysis
                     self.result = (addr, False)
                     return
             except Exception as e:
@@ -84,12 +85,12 @@ class TracePinger(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
         self.send_pkts_with_timewait()
 
 
-class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
+class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     target: str
     limit: int
-    pinger: TracePinger
+    sub_tracer: RouteSubTracer
 
-    logger = logging.getLogger('tracerouter')
+    logger = logging.getLogger('route_tracer')
 
     icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
 
@@ -101,13 +102,13 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
         sock = sock if sock is not None else self.get_sock()
         super().__init__(sock=sock, **kwargs)
         self.limit = limit
-        self.pinger = TracePinger(hop=1, target=target, sock=sock, **kwargs)
+        self.sub_tracer = RouteSubTracer(hop=1, target=target, sock=sock, **kwargs)
 
     @override(ICMP6Scanner)
     def scan_and_parse(self):
         results: list[Optional[str]] = []
-        while self.pinger.hop <= self.limit:
-            result = self.pinger.ping()
+        while self.sub_tracer.hop <= self.limit:
+            result = self.sub_tracer.trace()
             if result is None:
                 results.append(None)
             else:
@@ -115,7 +116,7 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
                 results.append(addr)
                 if arrived:
                     break
-            self.pinger.hop += 1
+            self.sub_tracer.hop += 1
         self.result = results
 
     @override(ResultParser)
@@ -140,4 +141,4 @@ class TraceRouter(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
 
 
 if __name__ == '__main__':
-    TraceRouter.main()
+    RouteTracer.main()
