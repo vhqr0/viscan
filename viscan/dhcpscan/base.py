@@ -161,6 +161,10 @@ class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
         raise RuntimeError('no response')
 
     @override(DHCPBaseScanner)
+    def send_reset(self):
+        self.result = None
+
+    @override(DHCPBaseScanner)
     def send(self):
         self.send_pkts_with_retry()
 
