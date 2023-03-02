@@ -5,7 +5,10 @@ from typing import Optional
 
 from .base import SRScanner
 from .decorators import override
-from .icmp6_filter import (ICMP6Filter, ICMP6_ECHO_REP)
+from .icmp6_utils import (
+    ICMP6Filter,
+    ICMP6_ECHO_REP,
+)
 
 Pkt = tuple[str, int, bytes]
 

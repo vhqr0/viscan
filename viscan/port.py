@@ -49,6 +49,7 @@ class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
 
     @override(ResultParser)
     def show(self):
+        assert self.result is not None
         for addr, port, state in self.result:
             print(f'[{addr}]:{port}\t{state}')
 

@@ -1,11 +1,8 @@
-import logging
 import argparse
 
-from argparse import ArgumentParser, Namespace
+from argparse import ArgumentParser
 
 from ..defaults import (
-    LOG_FORMAT,
-    LOG_DATEFMT,
     RETRY,
     TIMEWAIT,
     INTERVAL,
@@ -45,12 +42,3 @@ class ScanArgParser(ArgumentParser):
                           '--lossrate-dwim',
                           type=float,
                           default=lossrate)
-
-    def parse_args(self, *args, **kwargs) -> Namespace:
-        args = super().parse_args(*args, **kwargs)
-        debug = args.debug
-        level = 'DEBUG' if debug else 'INFO'
-        logging.basicConfig(level=level,
-                            format=LOG_FORMAT,
-                            datefmt=LOG_DATEFMT)
-        return args

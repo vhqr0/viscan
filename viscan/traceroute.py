@@ -12,7 +12,7 @@ from .common.dgram import ICMP6Scanner
 from .common.decorators import override
 from .common.generators import AddrGenerator
 from .common.argparser import ScanArgParser
-from .common.icmp6_filter import (
+from .common.icmp6_utils import (
     ICMP6_TIME_EXCEEDED,
     ICMP6_ECHO_REQ,
     ICMP6_ECHO_REP,
@@ -121,6 +121,7 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
 
     @override(ResultParser)
     def show(self):
+        assert self.result is not None
         for i, addr in enumerate(self.result):
             print(f'{i+1}\t{addr}')
 

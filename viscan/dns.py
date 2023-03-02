@@ -45,12 +45,13 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
 
     @override(ResultParser)
     def show(self):
+        assert self.result is not None
         for name in self.result:
             print(name)
 
     @override(BaseScanner)
     def scan_and_parse(self):
-        results = []
+        results: list[str] = []
         try:
             if not self.skip_check_autogen and self.check_autogen():
                 raise RuntimeError('autogen zone detected')

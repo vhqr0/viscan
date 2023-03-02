@@ -9,7 +9,7 @@ from .common.base import ResultParser, MainRunner
 from .common.dgram import ICMP6Scanner
 from .common.decorators import override
 from .common.generators import AddrGenerator
-from .common.icmp6_filter import ICMP6_ECHO_REQ
+from .common.icmp6_utils import ICMP6_ECHO_REQ
 
 
 class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
@@ -41,6 +41,7 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
 
     @override(ResultParser)
     def show(self):
+        assert self.result is not None
         for addr, state in self.result:
             print(f'{addr}\t{state}')
 

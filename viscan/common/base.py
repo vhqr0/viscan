@@ -8,6 +8,8 @@ from logging import Logger
 from argparse import Namespace
 
 from ..defaults import (
+    LOG_FORMAT,
+    LOG_DATEFMT,
     RETRY,
     TIMEWAIT,
     INTERVAL,
@@ -75,6 +77,9 @@ class MainRunner(BaseScanner):
 
     @classmethod
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
+        logging.basicConfig(level='DEBUG' if args.debug else 'INFO',
+                            format=LOG_FORMAT,
+                            datefmt=LOG_DATEFMT)
         return dict()
 
 
