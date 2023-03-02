@@ -137,22 +137,18 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
 
 
 class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
-    linkaddr: str
-    trid: int
-
     retrieve_type: type = dhcp6.DHCP6_Advertise
 
     logger = logging.getLogger('dhcp_retriever')
 
-    def __init__(self,
-                 linkaddr: Optional[str] = None,
-                 trid: Optional[int] = None,
-                 **kwargs):
+    def __init__(self, trid: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)
-        self.linkaddr = linkaddr if linkaddr is not None else self.target
         self.trid = trid if trid is not None else random.getrandbits(16)
 
-    def retrieve(self) -> Optional[dhcp6.DHCP6]:
+    def retrieve(self,
+                 linkaddr: Optional[str] = None) -> Optional[dhcp6.DHCP6]:
+        if linkaddr is not None:
+            self.linkaddr = linkaddr
         try:
             self.scan_and_parse()
             return self.result
@@ -165,7 +161,8 @@ class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
             _, _, buf = pkt
             try:
                 msg = self.parse_msg(buf)
-                if isinstance(msg, self.retrieve_type):
+                if isinstance(msg, self.retrieve_type) and \
+                   msg.trid == self.trid:
                     self.result = msg
                     return
             except Exception as e:
@@ -187,7 +184,8 @@ class DHCPRequester(DHCPRetriever):
 
     @override(DHCPBaseScanner)
     def get_pkt(self) -> tuple[str, int, bytes]:
-        buf = self.build_inforeq(linkaddr=self.linkaddr, trid=self.trid)
+        self.trid += 1
+        buf = self.build_inforeq(trid=self.trid)
         return (self.target, 547, buf)
 
 
@@ -196,5 +194,6 @@ class DHCPSoliciter(DHCPRetriever):
 
     @override(DHCPBaseScanner)
     def get_pkt(self) -> tuple[str, int, bytes]:
-        buf = self.build_solicit(linkaddr=self.linkaddr, trid=self.trid)
+        self.trid += 1
+        buf = self.build_solicit(trid=self.trid)
         return (self.target, 547, buf)

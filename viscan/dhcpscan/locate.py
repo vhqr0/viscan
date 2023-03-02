@@ -28,7 +28,7 @@ class DHCPLocator(ResultParser[int], DHCPBaseScanner):
 
     def _accept(self, addr: str) -> bool:
         try:
-            msg = self.soliciter.retrieve()
+            msg = self.soliciter.retrieve(addr)
             if msg is None:
                 return False
             na = self.get_na(msg)
