@@ -63,10 +63,12 @@ class DHCPLocator(ResultParser[int], DHCPBaseScanner):
             subnet = ipaddress.IPv6Interface(self.linkaddr).network
 
             while subnet.prefixlen > self.step:
-                first, last = subnet.network_address, subnet.broadcast_address
+                next_subnet = subnet.supernet(self.step)
+                first = next_subnet.network_address
+                last = next_subnet.broadcast_address
                 if not self.accept(str(first)) or not self.accept(str(last)):
                     break
-                subnet = subnet.supernet(prefixlen_diff=self.step)
+                subnet = next_subnet
 
             self.result = subnet.prefixlen
         except Exception as e:

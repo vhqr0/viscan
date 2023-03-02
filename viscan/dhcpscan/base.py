@@ -137,7 +137,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
 
 
 class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
-    retrieve_type: type = dhcp6.DHCP6_Advertise
+    retrieve_type: type[dhcp6.DHCP6] = dhcp6.DHCP6_Advertise
 
     logger = logging.getLogger('dhcp_retriever')
 
