@@ -1,5 +1,7 @@
 import random
 
+from scapy.packet import Packet
+import scapy.layers.l2 as l2
 import scapy.layers.inet as inet
 import scapy.layers.inet6 as inet6
 
@@ -60,6 +62,99 @@ class NmapTECNFingerPrinter(NmapTCPOpenPortFingerPrinter):
                          ('NOP', None),
                      ])
         return pkt
+
+
+class NmapT1FingerPrinter(NmapTCPOpenPortFingerPrinter):
+    fps: list[Optional[inet6.IPv6]]
+
+    fp_names = [f'S{j+1}#{i+1}' for i in range(3) for j in range(6)]
+
+    tcp_args = [
+        # S1
+        (1, [
+            ('WScale', 10),
+            ('NOP', None),
+            ('MSS', 1460),
+            ('Timestamp', (0xffffffff, 0)),
+            ('SAckOK', b''),
+        ]),
+        # S2
+        (63, [
+            ('MSS', 1400),
+            ('WScale', 0),
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+            ('EOL', None),
+        ]),
+        # S3
+        (4, [
+            ('Timestamp', (0xffffffff, 0)),
+            ('NOP', None),
+            ('NOP', None),
+            ('WScale', 5),
+            ('NOP', None),
+            ('MSS', 640),
+        ]),
+        # S4
+        (4, [
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+            ('WScale', 10),
+            ('EOL', None),
+        ]),
+        # S5
+        (16, [
+            ('MSS', 536),
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+            ('WScale', 10),
+            ('EOL', None),
+        ]),
+        # S6
+        (512, [
+            ('MSS', 265),
+            ('SAckOK', b''),
+            ('Timestamp', (0xffffffff, 0)),
+        ]),
+    ]
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.interval = 0.1  # force 0.1s
+        self.fps = []
+
+    @override(NmapTCPOpenPortFingerPrinter)
+    def parse_fps(self) -> list[Optional[Packet]]:
+        return self.fps
+
+    @override(NmapTCPOpenPortFingerPrinter)
+    def get_pkts(self) -> list[inet6.IPv6]:
+        pkts = []
+        for seq, arg in enumerate(self.tcp_args):
+            window, opts = arg
+            pkt = inet6.IPv6(dst=self.target) / \
+                inet.TCP(sport=self.port,
+                         dport=self.target_port,
+                         seq=seq,
+                         flags='S',
+                         window=window,
+                         options=opts)
+            pkts.append(pkt)
+        return pkts
+
+    @override(NmapTCPOpenPortFingerPrinter)
+    def send(self):
+        for i in range(3):
+            self.send_pkts_with_timewait()
+            for buf in self.recv_pkts:
+                pkt = l2.Ether(buf)
+                ippkt = pkt[inet6.IPv6]
+                tcppkt = ippkt[inet.TCP]
+                seq = tcppkt.ack - 1
+                if seq < 6:
+                    self.fps[6 * i + seq] = ippkt
+                else:
+                    self.logger.debug('invalid ack number')
 
 
 class NmapTCPSender(NmapTCPFingerPrinter):
