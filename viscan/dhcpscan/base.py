@@ -162,6 +162,7 @@ class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
 
     @override(DHCPBaseScanner)
     def send_reset(self):
+        super().send_reset()
         self.result = None
 
     @override(DHCPBaseScanner)
