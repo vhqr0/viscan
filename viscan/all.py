@@ -7,3 +7,4 @@ from .osscan.nmap import NmapOSScanner
 from .dnsscan import DNSScanner
 from .dhcpscan.ping import DHCPPinger
 from .dhcpscan.scale import DHCPScaler
+from .dhcpscan.locate import DHCPLocator

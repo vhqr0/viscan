@@ -8,6 +8,7 @@ from argparse import Namespace
 
 from ..defaults import (
     DHCP_LOCATE_STEP,
+    DHCP_ACCEPT_RETRY,
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
 )
@@ -20,7 +21,9 @@ from ..common.generators import AddrGenerator
 
 class DHCPBaseScanner(UDPScanner, MainRunner):
     target: str
+    linkaddr: str
     step: int
+    accept_retry: int
     count: int
     lossrate: float
     duid: dhcp6.DUID_LL
@@ -29,13 +32,17 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
 
     def __init__(self,
                  target: str,
+                 linkaddr: Optional[str] = None,
                  step: int = DHCP_LOCATE_STEP,
+                 accept_retry: int = DHCP_ACCEPT_RETRY,
                  count: int = DHCP_SCALE_COUNT,
                  lossrate: float = DHCP_SCALE_LOSSRATE,
                  **kwargs):
         super().__init__(**kwargs)
         self.target = target
+        self.linkaddr = linkaddr if linkaddr is not None else target
         self.step = step
+        self.accept_retry = accept_retry
         self.count = count
         self.lossrate = lossrate
         self.duid = dhcp6.DUID_LL(lladdr=random.randbytes(6))
@@ -43,7 +50,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     def build_inforeq(self,
                       linkaddr: Optional[str] = None,
                       trid: Optional[int] = None) -> bytes:
-        linkaddr = linkaddr if linkaddr is not None else self.target
+        linkaddr = linkaddr if linkaddr is not None else self.linkaddr
         trid = trid if trid is not None else random.getrandbits(16)
         msg = dhcp6.DHCP6_InfoRequest(trid=trid) / \
             dhcp6.DHCP6OptClientId(duid=self.duid) / \
@@ -55,7 +62,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     def build_solicit(self,
                       linkaddr: Optional[str] = None,
                       trid: Optional[int] = None) -> bytes:
-        linkaddr = linkaddr if linkaddr is not None else self.target
+        linkaddr = linkaddr if linkaddr is not None else self.linkaddr
         trid = trid if trid is not None else random.getrandbits(16)
         msg = dhcp6.DHCP6_Solicit(trid=trid) / \
             dhcp6.DHCP6OptClientId(duid=self.duid) / \
@@ -111,6 +118,9 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         parser.add_step_dwim(DHCP_LOCATE_STEP)
         parser.add_count_dwim(DHCP_SCALE_COUNT)
         parser.add_lossrate_dwim(DHCP_SCALE_LOSSRATE)
+        parser.add_argument('--dhcp-locate-retry',
+                            type=int,
+                            default=DHCP_ACCEPT_RETRY)
         return parser
 
     @classmethod
@@ -121,6 +131,8 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         kwargs['count'] = args.count_dwim
         kwargs['lossrate'] = args.lossrate_dwim
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
+        if len(args.targets) > 2:
+            kwargs['linkaddr'] = AddrGenerator.resolve(args.targets[1])
         return kwargs
 
 

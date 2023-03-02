@@ -1,5 +1,6 @@
 import math
 import ipaddress
+import functools
 import logging
 
 import scapy.layers.dhcp6 as dhcp6
@@ -53,7 +54,8 @@ class DHCPPoolScale:
         d = math.ceil((a2 - a1) / (len(addrs) - 1))
         return cls('random', a1, a2, d)
 
-    def get_accept_range(self):
+    @functools.cached_property
+    def accept_range(self):
         if self.t == 'static':
             return (self.a1, self.a2)
         if self.t == 'linear':
@@ -62,6 +64,10 @@ class DHCPPoolScale:
             else:
                 return (self.a1 + 128 * self.d, self.a1)
         return self.a1 - 2 * self.d, self.a2 + 2 * self.d
+
+    def __contains__(self, addr: str) -> bool:
+        a, b = self.accept_range
+        return a <= int(ipaddress.IPv6Address(addr)) <= b
 
     def get_jsonable(self) -> dict[str, Any]:
         return {
