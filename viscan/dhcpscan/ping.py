@@ -1,3 +1,5 @@
+import socket
+
 from scapy.packet import Packet
 
 from typing import Optional
@@ -45,6 +47,10 @@ class DHCPAdvertiseFingerPrinter(FingerPrinter, DHCPSoliciter):
 
 class DHCPPinger(EnsembleFingerPrinter, DHCPBaseScanner):
     fp_types = [DHCPReplyFingerPrinter, DHCPAdvertiseFingerPrinter]
+
+    def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
+        sock = sock if sock is not None else self.get_sock()
+        super().__init__(sock=sock, **kwargs)
 
 
 if __name__ == '__main__':
