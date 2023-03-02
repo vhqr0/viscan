@@ -1,4 +1,4 @@
-LOG_FORMAT = '%(asctime)s %(name)s %(levelname).4s %(message)s'
+LOG_FORMAT = '%(asctime)s %(name)s %(levelname)s %(message)s'
 LOG_DATEFMT = '%y-%m-%d %H:%M:%S'
 
 RETRY = 2
