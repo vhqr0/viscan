@@ -55,7 +55,7 @@ class NmapIE1FingerPrinter(OSFingerPrinter):
 class NmapIE2FingerPrinter(OSFingerPrinter):
     fp_names = ['IE2']
 
-    # Notice: icmpv6 parameter problem need deeper analysis
+    # TODO: icmpv6 parameter problem need deeper analysis
     filter_template = 'ip6 src {} and ' \
         '(' \
         ' (icmp6[icmp6type]==icmp6-echoreply and icmp6[4:2]=={}) or ' \
