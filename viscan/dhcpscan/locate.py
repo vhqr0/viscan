@@ -11,7 +11,7 @@ from .base import DHCPBaseScanner, DHCPSoliciter
 from .scale import DHCPScaler, DHCPPoolScale
 
 
-class DHCPLocator(ResultParser[tuple[int]], DHCPBaseScanner):
+class DHCPLocator(ResultParser[int], DHCPBaseScanner):
     scaler: DHCPScaler
     soliciter: DHCPSoliciter
     na_scale: Optional[DHCPPoolScale]
@@ -55,6 +55,10 @@ class DHCPLocator(ResultParser[tuple[int]], DHCPBaseScanner):
     def scan_and_parse(self):
         try:
             self.scaler.scan_and_parse()
+            assert self.scaler.result is not None
+            self.na_scale = self.scaler.result['na']
+            self.ta_scale = self.scaler.result['ta']
+            self.pd_scale = self.scaler.result['pd']
 
             subnet = ipaddress.IPv6Interface(self.linkaddr).network
 
