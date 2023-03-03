@@ -3,9 +3,9 @@ import argparse
 from argparse import ArgumentParser
 
 from ..defaults import (
-    RETRY,
-    TIMEWAIT,
-    INTERVAL,
+    SEND_RETRY,
+    SEND_TIMEWAIT,
+    SEND_INTERVAL,
     POP_PORTS,
 )
 
@@ -19,14 +19,23 @@ class ScanArgParser(ArgumentParser):
         self.add_argument('-o', '--output-path')
         self.add_argument('-i', '--iface')
         self.add_argument('-p', '--ports', default=POP_PORTS)
-        self.add_argument('-R', '--retry', type=int, default=RETRY)
-        self.add_argument('-T', '--timewait', type=float, default=TIMEWAIT)
-        self.add_argument('-I', '--interval', type=float, default=INTERVAL)
+        self.add_argument('-R', '--send-retry', type=int, default=SEND_RETRY)
+        self.add_argument('-T',
+                          '--send-timewait',
+                          type=float,
+                          default=SEND_TIMEWAIT)
+        self.add_argument('-I',
+                          '--send-interval',
+                          type=float,
+                          default=SEND_INTERVAL)
         self.add_argument('-O', '--open-port', type=int)
         self.add_argument('-C', '--closed-port', type=int)
         self.add_argument('-N', '--no-dwim', action='store_true')
         self.add_argument('-S', '--skip-dwim', action='store_true')
         self.add_argument('targets', nargs=argparse.REMAINDER)
+
+    def add_retry_dwim(self, retry: int):
+        self.add_argument('-r', '--retry-dwim', type=int, default=retry)
 
     def add_count_dwim(self, count: int):
         self.add_argument('-c', '--count-dwim', type=int, default=count)
@@ -36,6 +45,9 @@ class ScanArgParser(ArgumentParser):
 
     def add_limit_dwim(self, limit: int):
         self.add_argument('-l', '--limit-dwim', type=int, default=limit)
+
+    def add_window_dwim(self, window: int):
+        self.add_argument('-w', '--window-dwim', type=int, default=window)
 
     def add_plen_dwim(self, plen: int):
         self.add_argument('-P', '--plen-dwim', type=int, default=plen)

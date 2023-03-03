@@ -57,7 +57,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
                 raise RuntimeError('autogen zone detected')
             self.traversal(self.basename, results)
         except Exception as e:
-            self.logger.error('error while scanning: %s', e)
+            self.logger.debug('except while scanning: %s', e)
         self.result = results
 
     def traversal(self, name: str, results: list[str] = []):
@@ -86,7 +86,9 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
             query = dns.message.make_query(name, 'PTR')
             if self.no_recursive:
                 query.flags = 0
-            res = dns.query.udp(query, self.nameserver, timeout=self.timewait)
+            res = dns.query.udp(query,
+                                self.nameserver,
+                                timeout=self.send_timewait)
             if res.rcode() == 0:
                 return True
         except Exception as e:

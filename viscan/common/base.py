@@ -10,9 +10,9 @@ from argparse import Namespace
 from ..defaults import (
     LOG_FORMAT,
     LOG_DATEFMT,
-    RETRY,
-    TIMEWAIT,
-    INTERVAL,
+    SEND_RETRY,
+    SEND_TIMEWAIT,
+    SEND_INTERVAL,
 )
 from .decorators import override
 from .argparser import ScanArgParser
@@ -129,19 +129,19 @@ RecvPkt = TypeVar('RecvPkt')
 
 
 class Sender(Generic[SendPkt], MainRunner):
-    retry: int
-    timewait: float
-    interval: float
+    send_retry: int
+    send_timewait: float
+    send_interval: float
 
     def __init__(self,
-                 retry: int = RETRY,
-                 timewait: float = TIMEWAIT,
-                 interval: float = INTERVAL,
+                 send_retry: int = SEND_RETRY,
+                 send_timewait: float = SEND_TIMEWAIT,
+                 send_interval: float = SEND_INTERVAL,
                  **kwargs):
         super().__init__(**kwargs)
-        self.retry = retry
-        self.timewait = timewait
-        self.interval = interval
+        self.send_retry = send_retry
+        self.send_timewait = send_timewait
+        self.send_interval = send_interval
 
     def get_pkt(self) -> SendPkt:
         raise NotImplementedError
@@ -156,19 +156,19 @@ class Sender(Generic[SendPkt], MainRunner):
         if pkt is None:
             pkt = self.get_pkt()
         self.send_pkt(pkt)
-        time.sleep(self.interval)
+        time.sleep(self.send_interval)
 
     def send_pkts_with_timewait(self, pkts: Optional[list[SendPkt]] = None):
         if pkts is None:
             pkts = self.get_pkts()
         for pkt in pkts:
             self.send_pkt_with_interval(pkt)
-        time.sleep(self.timewait)
+        time.sleep(self.send_timewait)
 
     def send_pkts_with_retry(self, pkts: Optional[list[SendPkt]] = None):
         if pkts is None:
             pkts = self.get_pkts()
-        for _ in range(self.retry):
+        for _ in range(self.send_retry):
             self.send_pkts_with_timewait(pkts)
             if self.send_pkts_break_retry():
                 break
@@ -186,9 +186,9 @@ class Sender(Generic[SendPkt], MainRunner):
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
-        kwargs['retry'] = args.retry
-        kwargs['timewait'] = args.timewait
-        kwargs['interval'] = args.interval
+        kwargs['send_retry'] = args.send_retry
+        kwargs['send_timewait'] = args.send_timewait
+        kwargs['send_interval'] = args.send_interval
         return kwargs
 
 

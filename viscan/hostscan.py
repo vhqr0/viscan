@@ -50,7 +50,6 @@ class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
         pkts = []
         for seq, target in enumerate(self.targets):
             buf = struct.pack('!BBHHH', ICMP6_ECHO_REQ, 0, 0, self.port, seq)
-            buf += random.randbytes(random.randint(20, 40))
             pkts.append((target, 0, buf))
         return pkts
 

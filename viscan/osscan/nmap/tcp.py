@@ -120,7 +120,7 @@ class NmapT1FingerPrinter(NmapTCPOpenPortFingerPrinter):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.interval = 0.1  # force 0.1s
+        self.send_interval = 0.1  # force 0.1s
         self.fps = [None for _ in range(18)]
 
     @override(NmapTCPOpenPortFingerPrinter)

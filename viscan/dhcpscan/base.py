@@ -13,7 +13,7 @@ from ..defaults import (
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
     DHCP_LOCATE_STEP,
-    DHCP_LOCATE_ACCEPT_RETRY,
+    DHCP_LOCATE_RETRY,
 )
 from ..common.base import ResultParser, MainRunner
 from ..common.dgram import UDPScanner
@@ -31,7 +31,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     count: int
     lossrate: float
     step: int
-    accept_retry: int
+    retry: int
     duid: dhcp6.DUID_LL
 
     udp_addr = ('::', 547)
@@ -45,7 +45,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
                  count: int = DHCP_SCALE_COUNT,
                  lossrate: float = DHCP_SCALE_LOSSRATE,
                  step: int = DHCP_LOCATE_STEP,
-                 accept_retry: int = DHCP_LOCATE_ACCEPT_RETRY,
+                 retry: int = DHCP_LOCATE_RETRY,
                  **kwargs):
         super().__init__(**kwargs)
         self.target = target
@@ -56,7 +56,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         self.count = count
         self.lossrate = lossrate
         self.step = step
-        self.accept_retry = accept_retry
+        self.retry = retry
         self.duid = dhcp6.DUID_LL(lladdr=random.randbytes(6))
 
     def build_inforeq(self,
@@ -133,9 +133,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         parser.add_count_dwim(DHCP_SCALE_COUNT)
         parser.add_lossrate_dwim(DHCP_SCALE_LOSSRATE)
         parser.add_step_dwim(DHCP_LOCATE_STEP)
-        parser.add_argument('--accept-retry',
-                            type=int,
-                            default=DHCP_LOCATE_ACCEPT_RETRY)
+        parser.add_retry_dwim(DHCP_LOCATE_RETRY)
         return parser
 
     @classmethod
@@ -148,7 +146,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         kwargs['count'] = args.count_dwim
         kwargs['lossrate'] = args.lossrate_dwim
         kwargs['step'] = args.step_dwim
-        kwargs['accept_retry'] = args.accept_retry
+        kwargs['retry'] = args.retry_dwim
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
         if len(args.targets) > 2:
             kwargs['linkaddr'] = AddrGenerator.resolve(args.targets[1])

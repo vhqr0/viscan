@@ -26,6 +26,8 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
 
     logger = logging.getLogger('route_sub_tracer')
 
+    icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
+
     def __init__(self, target: str, hop: int = 1, **kwargs):
         super().__init__(**kwargs)
         self.target = target
@@ -33,7 +35,7 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
         self.port = random.getrandbits(16)
 
     def trace(self) -> Optional[tuple[str, bool]]:
-        for _ in range(self.retry):
+        for _ in range(self.send_retry):
             try:
                 self.scan_and_parse()
                 if self.result is not None:
@@ -91,8 +93,6 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     sub_tracer: RouteSubTracer
 
     logger = logging.getLogger('route_tracer')
-
-    icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
 
     def __init__(self,
                  target: str,

@@ -162,3 +162,4 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
                                    subnets=subnets)
         except Exception as e:
             self.logger.error('error while scanning: %s', e)
+            raise

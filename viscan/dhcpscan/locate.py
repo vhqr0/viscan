@@ -46,7 +46,7 @@ class DHCPLocator(ResultParser[int], DHCPBaseScanner):
 
     @functools.cache
     def accept(self, addr: str) -> bool:
-        for _ in range(self.accept_retry):
+        for _ in range(self.retry):
             if self._accept(addr):
                 return True
         return False
