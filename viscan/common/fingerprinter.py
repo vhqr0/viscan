@@ -40,7 +40,7 @@ class FingerPrinter(ResultParser[dict[str, Optional[Packet]]], BaseScanner):
             if pkt is None:
                 print(f'{name}\tNone')
             else:
-                print(f'{name}]\t{pkt.summary()}')
+                print(f'{name}\t{pkt.summary()}')
 
 
 class EnsembleFingerPrinter(FingerPrinter):
