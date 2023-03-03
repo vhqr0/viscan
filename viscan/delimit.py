@@ -111,6 +111,17 @@ class Delimiter(ResultParser[tuple[int, int]], MainRunner, BaseScanner):
                     end = i - 1
         return end
 
+    @override(ResultParser)
+    def get_jsonable(self) -> tuple[str, str]:
+        assert self.result is not None
+        return (str(ipaddress.IPv6Address(self.result[0])),
+                str(ipaddress.IPv6Address(self.result[1])))
+
+    @override(ResultParser)
+    def show(self):
+        a, b = self.get_jsonable()
+        print(f'{a}-{b}')
+
     @override(BaseScanner)
     def scan_and_parse(self):
         try:
