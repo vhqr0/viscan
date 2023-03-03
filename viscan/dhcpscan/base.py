@@ -152,7 +152,6 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         return kwargs
 
 
-@auto_add_logger
 class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
     retrieve_type: type[dhcp6.DHCP6] = dhcp6.DHCP6_Advertise
 
@@ -194,6 +193,7 @@ class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
         self.send_pkts_with_retry()
 
 
+@auto_add_logger
 class DHCPRequester(DHCPRetriever):
     retrieve_type = dhcp6.DHCP6_Reply
 
@@ -204,6 +204,7 @@ class DHCPRequester(DHCPRetriever):
         return (self.target, 547, buf)
 
 
+@auto_add_logger
 class DHCPSoliciter(DHCPRetriever):
     retrieve_type = dhcp6.DHCP6_Advertise
 

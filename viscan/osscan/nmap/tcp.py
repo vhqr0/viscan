@@ -7,7 +7,7 @@ import scapy.layers.inet6 as inet6
 
 from typing import Optional
 
-from ...common.decorators import override
+from ...common.decorators import override, auto_add_logger
 from ..base import OSFingerPrinter, OSScanner
 
 
@@ -41,6 +41,7 @@ class NmapTCPClosedPortFingerPrinter(NmapTCPFingerPrinter):
         super().__init__(target_port=closed_port, **kwargs)
 
 
+@auto_add_logger
 class NmapTECNFingerPrinter(NmapTCPOpenPortFingerPrinter):
     fp_names = ['TECN']
 
@@ -64,6 +65,7 @@ class NmapTECNFingerPrinter(NmapTCPOpenPortFingerPrinter):
         return pkt
 
 
+@auto_add_logger
 class NmapT1FingerPrinter(NmapTCPOpenPortFingerPrinter):
     fps: list[Optional[inet6.IPv6]]
 
@@ -172,41 +174,48 @@ class NmapTCPSender(NmapTCPFingerPrinter):
         return pkt
 
 
+@auto_add_logger
 class NmapT2FingerPrinter(NmapTCPSender, NmapTCPOpenPortFingerPrinter):
     fp_names = ['T2']
     window = 128
 
 
+@auto_add_logger
 class NmapT3FingerPrinter(NmapTCPSender, NmapTCPOpenPortFingerPrinter):
     fp_names = ['T3']
     flags = 'FSPU'
     window = 256
 
 
+@auto_add_logger
 class NmapT4FingerPrinter(NmapTCPSender, NmapTCPOpenPortFingerPrinter):
     fp_names = ['T4']
     flags = 'A'
     window = 1024
 
 
+@auto_add_logger
 class NmapT5FingerPrinter(NmapTCPSender, NmapTCPClosedPortFingerPrinter):
     fp_names = ['T5']
     flags = 'S'
     window = 31337
 
 
+@auto_add_logger
 class NmapT6FingerPrinter(NmapTCPSender, NmapTCPClosedPortFingerPrinter):
     fp_names = ['T6']
     flags = 'A'
     window = 32768
 
 
+@auto_add_logger
 class NmapT7FingerPrinter(NmapTCPSender, NmapTCPClosedPortFingerPrinter):
     fp_names = ['T7']
     flags = 'FPU'
     window = 65535
 
 
+@auto_add_logger
 class NmapTCPOSScanner(OSScanner):
     fp_types = [
         NmapTECNFingerPrinter,

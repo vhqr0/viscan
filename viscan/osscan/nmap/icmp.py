@@ -3,12 +3,13 @@ import random
 import scapy.layers.inet as inet
 import scapy.layers.inet6 as inet6
 
-from ...common.decorators import override
+from ...common.decorators import override, auto_add_logger
 from ..base import OSFingerPrinter, OSScanner
 
 Pad4 = inet6.PadN(optdata=b'\x00\x00\x00\x00')
 
 
+@auto_add_logger
 class NmapU1FingerPrinter(OSFingerPrinter):
     fp_names = ['U1']
     filter_template = 'ip6 src {} and ' \
@@ -30,6 +31,7 @@ class NmapU1FingerPrinter(OSFingerPrinter):
         return pkts
 
 
+@auto_add_logger
 class NmapIE1FingerPrinter(OSFingerPrinter):
     fp_names = ['IE1']
     filter_template = 'ip6 src {} and ' \
@@ -52,6 +54,7 @@ class NmapIE1FingerPrinter(OSFingerPrinter):
         return pkt
 
 
+@auto_add_logger
 class NmapIE2FingerPrinter(OSFingerPrinter):
     fp_names = ['IE2']
 
