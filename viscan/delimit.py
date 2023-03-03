@@ -95,7 +95,8 @@ class Delimiter(ResultParser[tuple[int, int]], MainRunner, BaseScanner):
         while beg < end:
             i = (beg + end) // 2
             responsed = False
-            for i in range(i - self.window, i + self.window):
+            for i in range(max(beg, i - self.window),
+                           min(end, i + self.window)):
                 if self.ping(i):
                     responsed = True
                     break
@@ -150,7 +151,7 @@ class Delimiter(ResultParser[tuple[int, int]], MainRunner, BaseScanner):
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
         kwargs['limit'] = args.limit_dwim
-        kwargs['window'] = args.limit_dwim
+        kwargs['window'] = args.window_dwim
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
         return kwargs
 
