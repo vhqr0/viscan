@@ -56,8 +56,8 @@ class DHCPInfo:
         print(f'target\t{self.target}')
         print(f'linkaddr\t{self.linkaddr}')
         print(f'plen\t{self.plen}')
-        print(f'reply\t{self.reply.show()}')
-        print(f'advertise\t{self.advertise.show()}')
+        print(f'reply\t{self.reply.summary()}')
+        print(f'advertise\t{self.advertise.summary()}')
         print('subnets')
         for addr, scales in self.subnets.items():
             print(f'addr\t{addr}')

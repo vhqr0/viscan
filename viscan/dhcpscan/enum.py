@@ -21,7 +21,9 @@ class DHCPEnumerator(
         super().__init__(**kwargs)
         net = ipaddress.IPv6Interface(self.linkaddr).network
         net = net.supernet(128 - self.plen + self.diff)
-        self.targets = [str(addr) for addr in net.subnets(self.diff)]
+        self.targets = [
+            str(addr.network_address) for addr in net.subnets(self.diff)
+        ]
 
     @override(ResultParser)
     def parse(self):
