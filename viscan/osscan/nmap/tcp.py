@@ -8,7 +8,7 @@ import scapy.layers.inet6 as inet6
 from typing import Optional
 
 from ...common.decorators import override
-from ..base import OSFingerPrinter
+from ..base import OSFingerPrinter, OSScanner
 
 
 class NmapTCPFingerPrinter(OSFingerPrinter):
@@ -205,3 +205,20 @@ class NmapT7FingerPrinter(NmapTCPSender, NmapTCPClosedPortFingerPrinter):
     fp_names = ['T7']
     flags = 'FPU'
     window = 65535
+
+
+class NmapTCPOSScanner(OSScanner):
+    fp_types = [
+        NmapTECNFingerPrinter,
+        NmapT1FingerPrinter,
+        NmapT2FingerPrinter,
+        NmapT3FingerPrinter,
+        NmapT4FingerPrinter,
+        NmapT5FingerPrinter,
+        NmapT6FingerPrinter,
+        NmapT7FingerPrinter,
+    ]
+
+
+if __name__ == '__main__':
+    NmapTCPOSScanner.main()

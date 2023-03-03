@@ -4,7 +4,7 @@ import scapy.layers.inet as inet
 import scapy.layers.inet6 as inet6
 
 from ...common.decorators import override
-from ..base import OSFingerPrinter
+from ..base import OSFingerPrinter, OSScanner
 
 Pad4 = inet6.PadN(optdata=b'\x00\x00\x00\x00')
 
@@ -78,3 +78,15 @@ class NmapIE2FingerPrinter(OSFingerPrinter):
                 seq=random.getrandbits(16),
                 data=random.randbytes(random.randint(20, 40)))
         return pkt
+
+
+class NmapICMPOSScanner(OSScanner):
+    fp_types = [
+        NmapU1FingerPrinter,
+        NmapIE1FingerPrinter,
+        NmapIE2FingerPrinter,
+    ]
+
+
+if __name__ == '__main__':
+    NmapICMPOSScanner.main()
