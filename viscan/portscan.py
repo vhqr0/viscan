@@ -1,5 +1,4 @@
 import random
-import logging
 
 import scapy.layers.l2 as l2
 import scapy.layers.inet as inet
@@ -10,16 +9,15 @@ from argparse import Namespace
 
 from .common.base import ResultParser, MainRunner
 from .common.pcap import PcapScanner
-from .common.decorators import override
+from .common.decorators import override, auto_add_logger
 from .common.generators import AddrPortGenerator
 
 
+@auto_add_logger
 class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
                   MainRunner):
     targets: list[tuple[str, int]]
     port: int
-
-    logger = logging.getLogger('port_scanner')
 
     def __init__(self, targets: list[tuple[str, int]], **kwargs):
         super().__init__(**kwargs)

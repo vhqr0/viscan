@@ -1,21 +1,19 @@
 import ipaddress
-import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
 from typing import Any, Optional
 
 from ..common.base import ResultParser
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from .base import DHCPBaseScanner
 
 
+@auto_add_logger
 class DHCPEnumerator(
         ResultParser[list[tuple[str, Optional[dhcp6.DHCP6_Advertise]]]],
         DHCPBaseScanner):
     targets: list[str]
-
-    logger = logging.getLogger('dhcp_enumerator')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

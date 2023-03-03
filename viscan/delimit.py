@@ -2,7 +2,6 @@ import random
 import struct
 import functools
 import ipaddress
-import logging
 
 from typing import Any
 from argparse import Namespace
@@ -13,17 +12,16 @@ from .defaults import (
 )
 from .common.base import ResultParser, MainRunner, BaseScanner
 from .common.dgram import ICMP6Scanner
-from .common.decorators import override
+from .common.decorators import override, auto_add_logger
 from .common.argparser import ScanArgParser
 from .common.generators import AddrGenerator
 from .common.icmp6_utils import ICMP6_ECHO_REQ
 
 
+@auto_add_logger
 class SubDelimiter(ResultParser[bool], ICMP6Scanner):
     target: str
     port: int
-
-    logger = logging.getLogger('sub_delimiter')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -68,13 +66,12 @@ class SubDelimiter(ResultParser[bool], ICMP6Scanner):
         self.send_pkts_with_retry()
 
 
+@auto_add_logger
 class Delimiter(ResultParser[tuple[int, int]], MainRunner, BaseScanner):
     target: str
     limit: int
     window: int
     sub_delimiter: SubDelimiter
-
-    logger = logging.getLogger('delimiter')
 
     def __init__(self,
                  target: str,

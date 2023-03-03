@@ -1,23 +1,21 @@
 import random
 import struct
-import logging
 
 from typing import Any
 from argparse import Namespace
 
 from .common.base import ResultParser, MainRunner
 from .common.dgram import ICMP6Scanner
-from .common.decorators import override
+from .common.decorators import override, auto_add_logger
 from .common.generators import AddrGenerator
 from .common.icmp6_utils import ICMP6_ECHO_REQ
 
 
+@auto_add_logger
 class HostScanner(ResultParser[list[tuple[str, bool]]], ICMP6Scanner,
                   MainRunner):
     targets: list[str]
     port: int
-
-    logger = logging.getLogger('host_scanner')
 
     def __init__(self, targets: list[str], **kwargs):
         super().__init__(**kwargs)

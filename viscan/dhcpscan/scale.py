@@ -1,7 +1,6 @@
 import math
 import ipaddress
 import functools
-import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
@@ -9,7 +8,7 @@ from typing_extensions import Self
 from typing import Any, Optional
 
 from ..common.base import ResultParser
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from .base import DHCPBaseScanner
 
 
@@ -81,10 +80,9 @@ class DHCPPoolScale:
         return '\t'.join(self.get_jsonable().values())
 
 
+@auto_add_logger
 class DHCPScaler(ResultParser[dict[str, Optional[DHCPPoolScale]]],
                  DHCPBaseScanner):
-
-    logger = logging.getLogger('dhcp_scaler')
 
     @override(ResultParser)
     def parse(self):

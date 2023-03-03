@@ -1,24 +1,22 @@
 import socket
 import ipaddress
 import functools
-import logging
 
 from typing import Any, Optional
 
 from ..common.base import ResultParser
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from .base import DHCPBaseScanner, DHCPSoliciter
 from .scale import DHCPScaler, DHCPPoolScale
 
 
+@auto_add_logger
 class DHCPLocator(ResultParser[int], DHCPBaseScanner):
     scaler: DHCPScaler
     soliciter: DHCPSoliciter
     na_scale: Optional[DHCPPoolScale]
     ta_scale: Optional[DHCPPoolScale]
     pd_scale: Optional[DHCPPoolScale]
-
-    logger = logging.getLogger('dhcp_locator')
 
     def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
         sock = sock if sock is not None else self.get_sock()

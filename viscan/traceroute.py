@@ -1,7 +1,6 @@
 import random
 import struct
 import socket
-import logging
 
 from typing import Any, Optional
 from argparse import Namespace
@@ -9,7 +8,7 @@ from argparse import Namespace
 from .defaults import TRACEROUTE_LIMIT
 from .common.base import ResultParser, MainRunner
 from .common.dgram import ICMP6Scanner
-from .common.decorators import override
+from .common.decorators import override, auto_add_logger
 from .common.generators import AddrGenerator
 from .common.argparser import ScanArgParser
 from .common.icmp6_utils import (
@@ -19,12 +18,11 @@ from .common.icmp6_utils import (
 )
 
 
+@auto_add_logger
 class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
     target: str
     hop: int
     port: int
-
-    logger = logging.getLogger('route_sub_tracer')
 
     icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
 
@@ -87,12 +85,11 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
         self.send_pkts_with_timewait()
 
 
+@auto_add_logger
 class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     target: str
     limit: int
     sub_tracer: RouteSubTracer
-
-    logger = logging.getLogger('route_tracer')
 
     def __init__(self,
                  target: str,

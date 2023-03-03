@@ -1,5 +1,4 @@
 import random
-import logging
 
 import dns.resolver
 import dns.query
@@ -10,10 +9,11 @@ from argparse import Namespace
 
 from .defaults import DNS_LIMIT
 from .common.base import ResultParser, Sender, MainRunner, BaseScanner
-from .common.decorators import override
+from .common.decorators import override, auto_add_logger
 from .common.argparser import ScanArgParser
 
 
+@auto_add_logger
 class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
     basename: str
     nameserver: str
@@ -23,8 +23,6 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
 
     SUFFIX = 'ip6.arpa.'
     SUFFIXLEN = len(SUFFIX)
-
-    logger = logging.getLogger('dns_scanner')
 
     def __init__(self,
                  basename: str = SUFFIX,

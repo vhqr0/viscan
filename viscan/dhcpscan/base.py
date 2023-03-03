@@ -1,5 +1,4 @@
 import random
-import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
@@ -17,7 +16,7 @@ from ..defaults import (
 )
 from ..common.base import ResultParser, MainRunner
 from ..common.dgram import UDPScanner
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from ..common.argparser import ScanArgParser
 from ..common.generators import AddrGenerator
 
@@ -153,10 +152,9 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         return kwargs
 
 
+@auto_add_logger
 class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
     retrieve_type: type[dhcp6.DHCP6] = dhcp6.DHCP6_Advertise
-
-    logger = logging.getLogger('dhcp_retriever')
 
     def __init__(self, trid: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)

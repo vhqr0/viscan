@@ -1,15 +1,15 @@
 import socket
-import logging
 
 from scapy.packet import Packet
 
 from typing import Optional
 
 from ..common.fingerprinter import FingerPrinter, EnsembleFingerPrinter
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from .base import DHCPBaseScanner, DHCPRequester, DHCPSoliciter
 
 
+@auto_add_logger
 class DHCPReplyFingerPrinter(FingerPrinter, DHCPBaseScanner):
     requester: DHCPRequester
 
@@ -28,10 +28,9 @@ class DHCPReplyFingerPrinter(FingerPrinter, DHCPBaseScanner):
         return [self.requester.result]
 
 
+@auto_add_logger
 class DHCPAdvertiseFingerPrinter(FingerPrinter, DHCPSoliciter):
     soliciter: DHCPSoliciter
-
-    logger = logging.getLogger('dhcp_pinger')
 
     fp_names = ['advertise']
 
@@ -48,6 +47,7 @@ class DHCPAdvertiseFingerPrinter(FingerPrinter, DHCPSoliciter):
         return [self.soliciter.result]
 
 
+@auto_add_logger
 class DHCPPinger(EnsembleFingerPrinter, DHCPBaseScanner):
     fp_types = [DHCPReplyFingerPrinter, DHCPAdvertiseFingerPrinter]
 

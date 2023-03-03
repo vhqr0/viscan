@@ -19,7 +19,7 @@ from .argparser import ScanArgParser
 
 
 class BaseScanner:
-    logger: Logger = logging.getLogger('base_scanner')
+    logger: Logger = logging.getLogger('BaseScanner')
 
     def __init__(self, **kwargs):
         for k in kwargs:

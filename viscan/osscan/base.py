@@ -1,5 +1,4 @@
 import random
-import logging
 
 from scapy.packet import Packet
 import scapy.layers.l2 as l2
@@ -11,17 +10,16 @@ from argparse import Namespace
 from ..common.base import MainRunner
 from ..common.fingerprinter import FingerPrinter, EnsembleFingerPrinter
 from ..common.pcap import PcapScanner
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from ..common.generators import AddrGenerator
 
 
+@auto_add_logger
 class OSFingerPrinter(FingerPrinter, PcapScanner, MainRunner):
     target: str
     open_port: Optional[int]
     closed_port: Optional[int]
     port: int
-
-    logger = logging.getLogger('os_finger_printer')
 
     def __init__(self,
                  target: str,
@@ -55,5 +53,6 @@ class OSFingerPrinter(FingerPrinter, PcapScanner, MainRunner):
         return kwargs
 
 
+@auto_add_logger
 class OSScanner(EnsembleFingerPrinter, OSFingerPrinter):
-    logger = logging.getLogger('os_scanner')
+    pass

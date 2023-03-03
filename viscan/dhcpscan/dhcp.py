@@ -1,13 +1,12 @@
 import socket
 import base64
-import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
 from typing import Any, Optional
 
 from ..common.base import ResultParser
-from ..common.decorators import override
+from ..common.decorators import override, auto_add_logger
 from .base import DHCPBaseScanner
 from .ping import DHCPPinger
 from .scale import DHCPScaler, DHCPPoolScale
@@ -71,10 +70,9 @@ class DHCPInfo:
                         print(f'{name}\t{scale.summary()}')
 
 
+@auto_add_logger
 class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
     kwargs: dict[str, Any]
-
-    logger = logging.getLogger('dhcp_scanner')
 
     def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
         sock = sock if sock is not None else self.get_sock()
