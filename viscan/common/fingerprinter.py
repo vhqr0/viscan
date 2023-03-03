@@ -23,7 +23,7 @@ class FingerPrinter(ResultParser[dict[str, Optional[Packet]]], BaseScanner):
         self.result = results
 
     @override(ResultParser)
-    def get_jsonable(self) -> Any:
+    def get_jsonable(self) -> dict[str, Any]:
         assert self.result is not None
         results: dict[str, Any] = dict()
         for name, pkt in self.result.items():
@@ -31,6 +31,7 @@ class FingerPrinter(ResultParser[dict[str, Optional[Packet]]], BaseScanner):
                 results[name] = None
             else:
                 results[name] = base64.b64encode(bytes(pkt)).decode()
+        return results
 
     @override(ResultParser)
     def show(self):

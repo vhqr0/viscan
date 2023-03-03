@@ -7,6 +7,8 @@ from typing import Any, Optional
 from argparse import Namespace
 
 from ..defaults import (
+    DHCP_ENUM_PLEN,
+    DHCP_ENUM_DIFF,
     DHCP_SCALE_COUNT,
     DHCP_SCALE_LOSSRATE,
     DHCP_LOCATE_STEP,
@@ -33,6 +35,8 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     def __init__(self,
                  target: str,
                  linkaddr: Optional[str] = None,
+                 plen: int = DHCP_ENUM_PLEN,
+                 diff: int = DHCP_ENUM_DIFF,
                  count: int = DHCP_SCALE_COUNT,
                  lossrate: float = DHCP_SCALE_LOSSRATE,
                  step: int = DHCP_LOCATE_STEP,
@@ -41,6 +45,8 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         super().__init__(**kwargs)
         self.target = target
         self.linkaddr = linkaddr if linkaddr is not None else target
+        self.plen = plen
+        self.diff = diff
         self.count = count
         self.lossrate = lossrate
         self.step = step
@@ -115,6 +121,8 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     @override(MainRunner)
     def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
         parser = super().get_argparser(*args, **kwargs)
+        parser.add_plen_dwim(DHCP_ENUM_PLEN)
+        parser.add_diff_dwim(DHCP_ENUM_DIFF)
         parser.add_count_dwim(DHCP_SCALE_COUNT)
         parser.add_lossrate_dwim(DHCP_SCALE_LOSSRATE)
         parser.add_step_dwim(DHCP_LOCATE_STEP)
@@ -127,6 +135,8 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
+        kwargs['plen'] = args.plen_dwim
+        kwargs['diff'] = args.diff_dwim
         kwargs['count'] = args.count_dwim
         kwargs['lossrate'] = args.lossrate_dwim
         kwargs['step'] = args.step_dwim

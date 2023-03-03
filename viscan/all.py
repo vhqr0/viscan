@@ -8,3 +8,4 @@ from .dnsscan import DNSScanner
 from .dhcpscan.ping import DHCPPinger
 from .dhcpscan.scale import DHCPScaler
 from .dhcpscan.locate import DHCPLocator
+from .dhcpscan.enum import DHCPEnumerator

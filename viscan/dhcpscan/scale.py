@@ -119,7 +119,7 @@ class DHCPScaler(ResultParser[dict[str, Optional[DHCPPoolScale]]],
         self.result = results
 
     @override(ResultParser)
-    def get_jsonable(self) -> Any:
+    def get_jsonable(self) -> dict[str, Any]:
         assert self.result is not None
         results: dict[str, Any] = dict()
         for name, scale in self.result.items():
@@ -127,6 +127,7 @@ class DHCPScaler(ResultParser[dict[str, Optional[DHCPPoolScale]]],
                 results[name] = None
             else:
                 results[name] = scale.get_jsonable()
+        return results
 
     @override(ResultParser)
     def show(self):

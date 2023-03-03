@@ -37,6 +37,12 @@ class ScanArgParser(ArgumentParser):
     def add_limit_dwim(self, limit: int):
         self.add_argument('-l', '--limit-dwim', type=int, default=limit)
 
+    def add_plen_dwim(self, plen: int):
+        self.add_argument('-P', '--plen-dwim', type=int, default=plen)
+
+    def add_diff_dwim(self, diff: int):
+        self.add_argument('-D', '--diff-dwim', type=int, default=diff)
+
     def add_lossrate_dwim(self, lossrate: float):
         self.add_argument('-L',
                           '--lossrate-dwim',

@@ -76,7 +76,7 @@ class DHCPLocator(ResultParser[int], DHCPBaseScanner):
             raise
 
     @override(ResultParser)
-    def get_jsonable(self) -> Any:
+    def get_jsonable(self) -> dict[str, Any]:
         assert self.result is not None and self.scaler.result is not None
         return {'prefixlen': self.result, 'scale': self.scaler.get_jsonable()}
 
