@@ -45,7 +45,7 @@ class DHCPInfo:
                         scales_jsonable[name] = None
                     else:
                         scales_jsonable[name] = scale.get_jsonable()
-                subnets_jsonable[addr] = scales_jsonable
+                        subnets_jsonable[addr] = scales_jsonable
         return {
             'target': self.target,
             'linkaddr': self.linkaddr,
@@ -90,10 +90,6 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
             raise RuntimeError('no reply')
         if not isinstance(advertise, dhcp6.DHCP6_Advertise):
             raise RuntimeError('no advertise')
-        if self.get_na(advertise) is None and \
-           self.get_ta(advertise) is None and \
-           self.get_pd(advertise) is None:
-            raise RuntimeError('no addrs')
         return reply, advertise
 
     def locate(self) -> int:
@@ -127,6 +123,26 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
         assert scaler.result is not None
         return scaler.result
 
+    def stateful_dispatch(self, reply: dhcp6.DHCP6_Reply,
+                          advertise: dhcp6.DHCP6_Advertise):
+        plen = self.locate()
+        addrs = self.enumerate(plen)
+        subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
+        if len(addrs) > self.limit:
+            subnets = {addr: None for addr in addrs}
+        else:
+            subnets = {addr: self.scale(addr) for addr in addrs}
+        self.result = DHCPInfo(target=self.target,
+                               linkaddr=self.linkaddr,
+                               plen=plen,
+                               reply=reply,
+                               advertise=advertise,
+                               subnets=subnets)
+
+    def stateless_dispatch(self, reply: dhcp6.DHCP6_Reply,
+                           advertise: dhcp6.DHCP6_Advertise):
+        pass
+
     @override(ResultParser)
     def get_jsonable(self) -> dict[str, Any]:
         assert self.result is not None
@@ -141,23 +157,12 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
     def scan_and_parse(self):
         try:
             reply, advertise = self.ping()
-
-            plen = self.locate()
-
-            addrs = self.enumerate(plen)
-
-            subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
-            if len(addrs) > self.limit:
-                subnets = {addr: None for addr in addrs}
+            if self.get_na(advertise) is None and \
+               self.get_ta(advertise) is None and \
+               self.get_pd(advertise) is None:
+                self.stateless_dispatch(reply, advertise)
             else:
-                subnets = {addr: self.scale(addr) for addr in addrs}
-
-            self.result = DHCPInfo(target=self.target,
-                                   linkaddr=self.linkaddr,
-                                   plen=plen,
-                                   reply=reply,
-                                   advertise=advertise,
-                                   subnets=subnets)
+                self.stateful_dispatch(reply, advertise)
         except Exception as e:
             self.logger.error('error while scanning: %s', e)
             raise
