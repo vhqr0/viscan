@@ -14,12 +14,13 @@ from ..defaults import (
     SEND_TIMEWAIT,
     SEND_INTERVAL,
 )
-from .decorators import override
+from .decorators import override, auto_add_logger
 from .argparser import ScanArgParser
 
 
+@auto_add_logger
 class BaseScanner:
-    logger: Logger = logging.getLogger('BaseScanner')
+    logger: Logger
 
     def __init__(self, **kwargs):
         for k in kwargs:
