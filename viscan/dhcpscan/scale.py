@@ -77,9 +77,8 @@ class DHCPPoolScale:
             'd': str(ipaddress.IPv6Address(self.d)),
         }
 
-    def show(self):
-        for k, v in self.get_jsonable().items():
-            print(f'{k}\t{v}')
+    def summary(self) -> str:
+        return '\t'.join(self.get_jsonable().values())
 
 
 class DHCPScaler(ResultParser[dict[str, Optional[DHCPPoolScale]]],
@@ -133,9 +132,8 @@ class DHCPScaler(ResultParser[dict[str, Optional[DHCPPoolScale]]],
     def show(self):
         assert self.result is not None
         for name, scale in self.result.items():
-            print(name)
             if scale is not None:
-                scale.show()
+                print(f'{name}\t{scale.summary()}')
 
     @override(DHCPBaseScanner)
     def get_pkts(self) -> list[tuple[str, int, bytes]]:

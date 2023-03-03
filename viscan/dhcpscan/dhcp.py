@@ -67,9 +67,8 @@ class DHCPInfo:
             print(f'addr\t{addr}')
             if scales is not None:
                 for name, scale in scales.items():
-                    print(name)
                     if scale is not None:
-                        scale.show()
+                        print(f'{name}\t{scale.summary()}')
 
 
 class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
