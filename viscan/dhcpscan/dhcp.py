@@ -88,8 +88,8 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
             raise RuntimeError('no reply')
         if not isinstance(advertise, dhcp6.DHCP6_Advertise):
             raise RuntimeError('no advertise')
-        if self.get_na(advertise) is None or \
-           self.get_ta(advertise) is None or \
+        if self.get_na(advertise) is None and \
+           self.get_ta(advertise) is None and \
            self.get_pd(advertise) is None:
             raise RuntimeError('no addrs')
         return reply, advertise
