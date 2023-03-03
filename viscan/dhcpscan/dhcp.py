@@ -64,7 +64,7 @@ class DHCPInfo:
         print(f'advertise\t{self.advertise.summary()}')
         print('subnets')
         for addr, scales in self.subnets.items():
-            print(f'addr\t{addr}')
+            print(f'{addr}')
             if scales is not None:
                 for name, scale in scales.items():
                     if scale is not None:
