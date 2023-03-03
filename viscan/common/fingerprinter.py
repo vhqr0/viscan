@@ -38,9 +38,9 @@ class FingerPrinter(ResultParser[dict[str, Optional[Packet]]], BaseScanner):
         assert self.result is not None
         for name, pkt in self.result.items():
             if pkt is None:
-                print(f'{name}: None')
+                print(f'{name}\tNone')
             else:
-                print(f'{name}: {pkt.summary()}')
+                print(f'{name}]\t{pkt.summary()}')
 
 
 class EnsembleFingerPrinter(FingerPrinter):

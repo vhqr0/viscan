@@ -79,7 +79,7 @@ class DHCPPoolScale:
 
     def show(self):
         for k, v in self.get_jsonable().items():
-            print(f'{k}:\t{v}')
+            print(f'{k}\t{v}')
 
 
 class DHCPScaler(ResultParser[dict[str, Optional[DHCPPoolScale]]],

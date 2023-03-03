@@ -1,4 +1,5 @@
 import ipaddress
+import logging
 
 import scapy.layers.dhcp6 as dhcp6
 
@@ -13,6 +14,8 @@ class DHCPEnumerator(
         ResultParser[list[tuple[str, Optional[dhcp6.DHCP6_Advertise]]]],
         DHCPBaseScanner):
     targets: list[str]
+
+    logger = logging.getLogger('dhcp_enumerator')
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -56,12 +59,12 @@ class DHCPEnumerator(
         assert self.result is not None
         for addr, msg in self.result:
             if msg is None:
-                print(f'{addr}:\tNone')
+                print(f'{addr}\tNone')
             else:
                 na = self.get_na(msg)
                 ta = self.get_ta(msg)
                 pd = self.get_pd(msg)
-                print(f'{addr}:\t{na}\t{ta}\t{pd}')
+                print(f'{addr}\t{na}\t{ta}\t{pd}')
 
     @override(DHCPBaseScanner)
     def get_pkts(self) -> list[tuple[str, int, bytes]]:

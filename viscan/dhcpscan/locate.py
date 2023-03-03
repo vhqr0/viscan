@@ -84,7 +84,7 @@ class DHCPLocator(ResultParser[int], DHCPBaseScanner):
     def show(self):
         assert self.result is not None and self.scaler.result is not None
         self.scaler.show()
-        print(f'prefixlen:\t{self.result}')
+        print(f'prefixlen\t{self.result}')
 
 
 if __name__ == '__main__':
