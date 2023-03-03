@@ -131,7 +131,7 @@ class Delimiter(ResultParser[tuple[int, int]], MainRunner, BaseScanner):
             ll = int(net.network_address)
             hl = int(net.broadcast_address)
             ll = self.search(ll, m, True)
-            hl = self.search(m, ll, False)
+            hl = self.search(m, hl, False)
             self.result = (ll, hl)
         except Exception as e:
             self.logger.error('error while scanning: %s', e)
