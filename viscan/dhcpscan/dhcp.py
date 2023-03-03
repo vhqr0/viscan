@@ -21,11 +21,12 @@ class DHCPInfo:
     plen: int
     reply: dhcp6.DHCP6_Reply
     advertise: dhcp6.DHCP6_Advertise
-    subnets: dict[str, dict[str, Optional[DHCPPoolScale]]]
+    subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
 
     def __init__(self, target: str, linkaddr: str, plen: int,
                  reply: dhcp6.DHCP6_Reply, advertise: dhcp6.DHCP6_Advertise,
-                 subnets: dict[str, dict[str, Optional[DHCPPoolScale]]]):
+                 subnets: dict[str, Optional[dict[str,
+                                                  Optional[DHCPPoolScale]]]]):
         self.target = target
         self.linkaddr = linkaddr
         self.plen = plen
@@ -34,15 +35,18 @@ class DHCPInfo:
         self.subnets = subnets
 
     def get_jsonable(self) -> dict[str, Any]:
-        subnets_jsonable: dict[str, dict[str, Any]] = dict()
+        subnets_jsonable: dict[str, Optional[dict[str, Any]]] = dict()
         for addr, scales in self.subnets.items():
-            scales_jsonable: dict[str, Any] = dict()
-            for name, scale in scales.items():
-                if scale is None:
-                    scales_jsonable[name] = None
-                else:
-                    scales_jsonable[name] = scale.get_jsonable()
-            subnets_jsonable[addr] = scales_jsonable
+            if scales is None:
+                subnets_jsonable[addr] = None
+            else:
+                scales_jsonable: dict[str, Any] = dict()
+                for name, scale in scales.items():
+                    if scale is None:
+                        scales_jsonable[name] = None
+                    else:
+                        scales_jsonable[name] = scale.get_jsonable()
+                subnets_jsonable[addr] = scales_jsonable
         return {
             'target': self.target,
             'linkaddr': self.linkaddr,
@@ -61,10 +65,11 @@ class DHCPInfo:
         print('subnets')
         for addr, scales in self.subnets.items():
             print(f'addr\t{addr}')
-            for name, scale in scales.items():
-                print(name)
-                if scale is not None:
-                    scale.show()
+            if scales is not None:
+                for name, scale in scales.items():
+                    print(name)
+                    if scale is not None:
+                        scale.show()
 
 
 class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
@@ -144,7 +149,11 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
 
             addrs = self.enumerate(plen)
 
-            subnets = {addr: self.scale(addr) for addr in addrs}
+            subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
+            if len(addrs) > self.limit:
+                subnets = {addr: None for addr in addrs}
+            else:
+                subnets = {addr: self.scale(addr) for addr in addrs}
 
             self.result = DHCPInfo(target=self.target,
                                    linkaddr=self.linkaddr,
