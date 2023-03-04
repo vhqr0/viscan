@@ -1,4 +1,8 @@
 __pycache__
 
+/build
+/dist
+/viscan.egg-info
+
 /classes.png
 /packages.png

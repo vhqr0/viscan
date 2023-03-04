@@ -1,0 +1,33 @@
+[build-system]
+requires = ['setuptools>=61.0']
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "viscan"
+version = "0.0.1"
+authors = [
+  { name="vhqr", email="zqzq.cmd@gmail.com" },
+]
+description = "An IPv6 scanning framework and scanner collections."
+readme = "README.md"
+requires-python = ">=3.9"
+classifiers = [
+    "Development Status :: 1 - Planning",
+    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+    "Programming Language :: Python :: 3",
+    "Operating System :: POSIX :: Linux",
+    "Environment :: Console",
+    "Topic :: Internet",
+    "Topic :: Security",
+    "Topic :: System :: Networking",
+]
+dependencies = [
+    "typing_extensions",
+    "scapy",
+    "pypcap",
+    "dnspython",
+]
+
+[project.urls]
+"Homepage" = "https://github.com/vhqr0/viscan"
+"Bug Tracker" = "https://github.com/vhqr0/viscan/issues"
