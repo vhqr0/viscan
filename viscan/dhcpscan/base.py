@@ -153,7 +153,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
 
 
 class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
-    retrieve_type: type[dhcp6.DHCP6] = dhcp6.DHCP6_Advertise
+    retrieve_type: type[dhcp6.DHCP6]
 
     def __init__(self, trid: Optional[int] = None, **kwargs):
         super().__init__(**kwargs)
@@ -197,7 +197,7 @@ class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
 class DHCPRequester(DHCPRetriever):
     retrieve_type = dhcp6.DHCP6_Reply
 
-    @override(DHCPBaseScanner)
+    @override(DHCPRetriever)
     def get_pkt(self) -> tuple[str, int, bytes]:
         self.trid += 1
         buf = self.build_inforeq(trid=self.trid)
@@ -208,7 +208,7 @@ class DHCPRequester(DHCPRetriever):
 class DHCPSoliciter(DHCPRetriever):
     retrieve_type = dhcp6.DHCP6_Advertise
 
-    @override(DHCPBaseScanner)
+    @override(DHCPRetriever)
     def get_pkt(self) -> tuple[str, int, bytes]:
         self.trid += 1
         buf = self.build_solicit(trid=self.trid)
