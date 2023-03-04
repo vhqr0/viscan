@@ -105,6 +105,7 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
         return reply, advertise
 
     def scale(self, addr: str) -> dict[str, Optional[DHCPPoolScale]]:
+        self.logger.debug('scale %s', addr)
         kwargs = self.kwargs.copy()
         kwargs['linkaddr'] = addr
         scaler = DHCPScaler(**kwargs)
@@ -133,6 +134,8 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
                self.get_pd(msg) is None:
                 continue
             addrs.append(addr)
+        self.logger.debug('enumerate(%d/%d) %d addrs', plen, self.diff,
+                          len(addrs))
         return addrs
 
     def stateless_enumerate(self, plen: int, diff: int) -> list[str]:
@@ -146,14 +149,17 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
         for addr, msg in enumerator.result:
             if msg is not None:
                 addrs.append(addr)
+        self.logger.debug('enumerate(%d/%d) %d addrs', plen, diff, len(addrs))
         return addrs
 
     def stateful_dispatch(self, reply: dhcp6.DHCP6_Reply,
                           advertise: dhcp6.DHCP6_Advertise):
+        self.logger.debug('in stateful dispatch')
         plen = self.locate()
         addrs = self.stateful_enumerate(plen)
         subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
         if len(addrs) > self.limit:
+            self.logger.warning('enumerate too many addrs')
             subnets = {addr: None for addr in addrs}
         else:
             subnets = {addr: self.scale(addr) for addr in addrs}
@@ -167,12 +173,14 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
 
     def stateless_dispatch(self, reply: dhcp6.DHCP6_Reply,
                            advertise: dhcp6.DHCP6_Advertise):
+        self.logger.debug('in stateless dispatch')
         results: dict[int, list[str]] = dict()
         beg, end, step = self.stateless_search_range
         limit = self.lossrate * step**2
         for plen in range(beg, end, step):
             results[plen] = self.stateless_enumerate(plen, step)
         plen = self.stateless_plen_select(results, limit)
+        self.logger.debug('select plen %d', plen)
 
         subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
         subnets = {addr: None for addr in results[plen]}
