@@ -5,7 +5,10 @@ import socket
 from typing import Any, Optional
 from argparse import Namespace
 
-from .defaults import TRACEROUTE_LIMIT
+from .defaults import (
+    TRACEROUTE_HOP,
+    TRACEROUTE_LIMIT,
+)
 from .common.base import ResultParser, MainRunner
 from .common.dgram import ICMP6Scanner
 from .common.decorators import override, auto_add_logger
@@ -26,7 +29,7 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
 
     icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
 
-    def __init__(self, target: str, hop: int = 1, **kwargs):
+    def __init__(self, target: str, hop: int = TRACEROUTE_HOP, **kwargs):
         super().__init__(**kwargs)
         self.target = target
         self.hop = hop
@@ -88,6 +91,7 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], ICMP6Scanner):
 @auto_add_logger
 class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     target: str
+    hop: int
     limit: int
     sub_tracer: RouteSubTracer
 
@@ -95,14 +99,16 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
 
     def __init__(self,
                  target: str,
+                 hop: int = TRACEROUTE_HOP,
                  limit: int = TRACEROUTE_LIMIT,
                  sock: Optional[socket.socket] = None,
                  **kwargs):
         sock = sock if sock is not None else self.get_sock()
         super().__init__(sock=sock, **kwargs)
+        self.hop = hop
         self.limit = limit
         self.sub_tracer = \
-            RouteSubTracer(target=target, hop=1, sock=sock, **kwargs)
+            RouteSubTracer(target=target, hop=hop, sock=sock, **kwargs)
 
     @override(ICMP6Scanner)
     def scan_and_parse(self):
@@ -131,6 +137,7 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     @override(MainRunner)
     def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
         parser = super().get_argparser(*args, **kwargs)
+        parser.add_hop_dwim(TRACEROUTE_HOP)
         parser.add_limit_dwim(TRACEROUTE_LIMIT)
         return parser
 
@@ -138,6 +145,7 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
+        kwargs['hop'] = args.hop_dwim
         kwargs['limit'] = args.limit_dwim
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
         return kwargs

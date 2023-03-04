@@ -49,6 +49,9 @@ class ScanArgParser(ArgumentParser):
     def add_window_dwim(self, window: int):
         self.add_argument('-w', '--window-dwim', type=int, default=window)
 
+    def add_hop_dwim(self, hop: int):
+        self.add_argument('-H', '--hop-dwim', type=int, default=hop)
+
     def add_plen_dwim(self, plen: int):
         self.add_argument('-P', '--plen-dwim', type=int, default=plen)
 
