@@ -18,6 +18,7 @@ from .enum import DHCPEnumerator
 
 
 class DHCPInfo:
+    t: str
     target: str
     linkaddr: str
     plen: int
@@ -25,10 +26,11 @@ class DHCPInfo:
     advertise: dhcp6.DHCP6_Advertise
     subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
 
-    def __init__(self, target: str, linkaddr: str, plen: int,
+    def __init__(self, t: str, target: str, linkaddr: str, plen: int,
                  reply: dhcp6.DHCP6_Reply, advertise: dhcp6.DHCP6_Advertise,
                  subnets: dict[str, Optional[dict[str,
                                                   Optional[DHCPPoolScale]]]]):
+        self.t = t
         self.target = target
         self.linkaddr = linkaddr
         self.plen = plen
@@ -50,6 +52,7 @@ class DHCPInfo:
                         scales_jsonable[name] = scale.get_jsonable()
                 subnets_jsonable[addr] = scales_jsonable
         return {
+            'type': self.t,
             'target': self.target,
             'linkaddr': self.linkaddr,
             'plen': self.plen,
@@ -59,6 +62,7 @@ class DHCPInfo:
         }
 
     def show(self):
+        print(f'type\t{self.t}')
         print(f'target\t{self.target}')
         print(f'linkaddr\t{self.linkaddr}')
         print(f'plen\t{self.plen}')
@@ -153,7 +157,8 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
             subnets = {addr: None for addr in addrs}
         else:
             subnets = {addr: self.scale(addr) for addr in addrs}
-        self.result = DHCPInfo(target=self.target,
+        self.result = DHCPInfo(t='stateful',
+                               target=self.target,
                                linkaddr=self.linkaddr,
                                plen=plen,
                                reply=reply,
@@ -176,7 +181,8 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
             if addr not in subnets:
                 subnets[addr] = None
 
-        self.result = DHCPInfo(target=self.target,
+        self.result = DHCPInfo(t='stateless',
+                               target=self.target,
                                linkaddr=self.linkaddr,
                                plen=plen,
                                reply=reply,
