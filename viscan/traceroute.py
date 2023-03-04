@@ -91,6 +91,8 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
     limit: int
     sub_tracer: RouteSubTracer
 
+    icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
+
     def __init__(self,
                  target: str,
                  limit: int = TRACEROUTE_LIMIT,
