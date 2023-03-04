@@ -208,8 +208,8 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
 
         # order:
         # 1. max naddrs with inlimit addrs (2 <= len(addrs) <= limit)
-        # 2. min naddrs with outlimit addrs (len(addrs) > limit)
-        # 3. nearest to 64 with one addr (len(addrs) == 1)
+        # 2. nearest to 64 with one addr (len(addrs) == 1)
+        # 3. min naddrs with outlimit addrs (len(addrs) > limit)
         # 4. 64
         max_inlimit, min_outlimit, nearest_one = None, None, None
         for plen in reversed(results):  # long prefix has higher priority
@@ -227,10 +227,10 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
 
         if max_inlimit is not None:
             return max_inlimit[0]
-        if max_outlimit is not None:
-            return max_outlimit[0]
         if nearest_one is not None:
             return nearest_one[0]
+        if max_outlimit is not None:
+            return max_outlimit[0]
         return 64
 
     @override(ResultParser)
