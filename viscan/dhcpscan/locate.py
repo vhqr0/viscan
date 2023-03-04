@@ -67,6 +67,7 @@ class DHCPLocator(ResultParser[int], DHCPBaseScanner):
                 if not self.accept(str(first)) or not self.accept(str(last)):
                     break
                 subnet = next_subnet
+                self.logger.debug('accept %s', subnet)
 
             self.result = subnet.prefixlen
         except Exception as e:
