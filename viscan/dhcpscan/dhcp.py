@@ -185,10 +185,11 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
 
         subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
         subnets = {addr: None for addr in results[plen]}
-        addrs = self.stateless_enumerate(plen, self.step)
-        for addr in addrs:
-            if addr not in subnets:
-                subnets[addr] = None
+        if self.diff > step:
+            addrs = self.stateless_enumerate(plen, self.diff)
+            for addr in addrs:
+                if addr not in subnets:
+                    subnets[addr] = None
 
         self.result = DHCPInfo(t='stateless',
                                target=self.target,
