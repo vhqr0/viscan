@@ -62,6 +62,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
         if len(name) > self.limit or not self.query_noerror(name):
             return
         if len(name) == self.limit:
+            self.logger.debug('traversal %s', name)
             results.append(name)
             return
         for c in '0123456789abcdef':
