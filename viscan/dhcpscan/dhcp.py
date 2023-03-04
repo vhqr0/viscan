@@ -156,6 +156,7 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
                           advertise: dhcp6.DHCP6_Advertise):
         self.logger.debug('in stateful dispatch')
         plen = self.locate()
+        self.logger.debug('select plen %d', plen)
         addrs = self.stateful_enumerate(plen)
         subnets: dict[str, Optional[dict[str, Optional[DHCPPoolScale]]]]
         if len(addrs) > self.limit:
