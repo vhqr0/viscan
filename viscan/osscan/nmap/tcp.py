@@ -155,8 +155,6 @@ class NmapT1FingerPrinter(NmapTCPOpenPortFingerPrinter):
                 seq = tcppkt.ack - 1
                 if seq < 6:
                     self.fps[6 * i + seq] = ippkt
-                else:
-                    self.logger.debug('invalid ack number')
 
 
 class NmapTCPSender(NmapTCPFingerPrinter):
