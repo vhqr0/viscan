@@ -48,7 +48,7 @@ class DHCPInfo:
                         scales_jsonable[name] = None
                     else:
                         scales_jsonable[name] = scale.get_jsonable()
-                        subnets_jsonable[addr] = scales_jsonable
+                subnets_jsonable[addr] = scales_jsonable
         return {
             'target': self.target,
             'linkaddr': self.linkaddr,
