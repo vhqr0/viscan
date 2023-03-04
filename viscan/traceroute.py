@@ -101,16 +101,16 @@ class RouteTracer(ResultParser[list[Optional[str]]], ICMP6Scanner, MainRunner):
         sock = sock if sock is not None else self.get_sock()
         super().__init__(sock=sock, **kwargs)
         self.limit = limit
-        self.sub_tracer = RouteSubTracer(target=target,
-                                         hop=1,
-                                         sock=sock,
-                                         **kwargs)
+        self.sub_tracer = \
+            RouteSubTracer(target=target, hop=1, sock=sock, **kwargs)
 
     @override(ICMP6Scanner)
     def scan_and_parse(self):
         results: list[Optional[str]] = []
         while self.sub_tracer.hop <= self.limit:
             result = self.sub_tracer.trace()
+            self.logger.debug('trace %d %s', self.sub_tracer.hop,
+                              self.sub_tracer.result)
             if result is None:
                 results.append(None)
             else:
