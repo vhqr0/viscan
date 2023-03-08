@@ -12,20 +12,20 @@ description = "An IPv6 scanning framework and scanner collections."
 readme = "README.md"
 requires-python = ">=3.9"
 classifiers = [
-    "Development Status :: 1 - Planning",
-    "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
-    "Programming Language :: Python :: 3",
-    "Operating System :: POSIX :: Linux",
-    "Environment :: Console",
-    "Topic :: Internet",
-    "Topic :: Security",
-    "Topic :: System :: Networking",
+  "Development Status :: 1 - Planning",
+  "License :: OSI Approved :: GNU General Public License v3 or later (GPLv3+)",
+  "Programming Language :: Python :: 3",
+  "Operating System :: POSIX :: Linux",
+  "Environment :: Console",
+  "Topic :: Internet",
+  "Topic :: Security",
+  "Topic :: System :: Networking",
 ]
 dependencies = [
-    "typing_extensions",
-    "scapy",
-    "pypcap",
-    "dnspython",
+  "typing_extensions",
+  "scapy",
+  "pypcap",
+  "dnspython",
 ]
 
 [project.urls]
