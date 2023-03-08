@@ -3,13 +3,12 @@ import random
 from typing import Any, Optional
 from argparse import Namespace
 
-from ..common.base import ResultParser, MainRunner, SRScanner, BaseScanner
-from ..common.decorators import override
-
-from .defaults import (
+from ..defaults import (
     TRACEROUTE_HOP,
     TRACEROUTE_LIMIT,
 )
+from ..common.base import ResultParser, MainRunner, SRScanner, BaseScanner
+from ..common.decorators import override
 from .common.argparser import ScanArgParser
 
 
