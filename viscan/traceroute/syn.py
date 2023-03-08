@@ -1,5 +1,5 @@
 import scapy.layers.inet as inet
-import scapy.layers.inet as inet6
+import scapy.layers.inet6 as inet6
 
 from typing import Any
 from argparse import Namespace
