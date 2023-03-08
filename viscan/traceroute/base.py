@@ -12,7 +12,8 @@ from ..common.decorators import override
 from ..common.argparser import ScanArgParser
 
 
-class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner):
+class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner,
+                     MainRunner):
     hop: int
     port: int
 
@@ -39,6 +40,20 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner):
     @override(SRScanner)
     def send(self):
         self.send_pkts_with_timewait()
+
+    @classmethod
+    @override(MainRunner)
+    def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
+        parser = super().get_argparser(*args, **kwargs)
+        parser.add_hop_dwim(TRACEROUTE_HOP)
+        return parser
+
+    @classmethod
+    @override(MainRunner)
+    def parse_args(cls, args: Namespace) -> dict[str, Any]:
+        kwargs = super().parse_args(args)
+        kwargs['hop'] = args.hop_dwim
+        return kwargs
 
 
 class RouteTracer(ResultParser[list[Optional[str]]], MainRunner, BaseScanner):
@@ -85,7 +100,6 @@ class RouteTracer(ResultParser[list[Optional[str]]], MainRunner, BaseScanner):
     @override(MainRunner)
     def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
         parser = super().get_argparser(*args, **kwargs)
-        parser.add_hop_dwim(TRACEROUTE_HOP)
         parser.add_limit_dwim(TRACEROUTE_LIMIT)
         return parser
 
@@ -93,6 +107,5 @@ class RouteTracer(ResultParser[list[Optional[str]]], MainRunner, BaseScanner):
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
-        kwargs['hop'] = args.hop_dwim
         kwargs['limit'] = args.limit_dwim
         return kwargs

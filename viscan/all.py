@@ -1,6 +1,7 @@
 # flake8: noqa
 
 from .traceroute.ping import PingRouteTracer
+from .traceroute.dns import DNSRouteTracer
 from .delimit import Delimiter
 from .hostscan import HostScanner
 from .portscan import PortScanner

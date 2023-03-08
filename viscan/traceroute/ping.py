@@ -17,7 +17,7 @@ from .base import RouteSubTracer, RouteTracer
 
 
 @auto_add_logger
-class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner):
+class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
     target: str
 
     icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
@@ -59,21 +59,21 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner):
                  struct.pack('@I', self.hop))]
         self.sock.sendmsg([buf], cmsg, 0, (addr, 0))
 
-
-@auto_add_logger
-class PingRouteTracer(RouteTracer, PingRouteSubTracer, MainRunner):
-    sub_tracer_type = PingRouteSubTracer
-
-    def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
-        sock = sock if sock is not None else self.get_sock()
-        super().__init__(sock=sock, **kwargs)
-
     @classmethod
     @override(MainRunner)
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
         return kwargs
+
+
+@auto_add_logger
+class PingRouteTracer(RouteTracer, PingRouteSubTracer):
+    sub_tracer_type = PingRouteSubTracer
+
+    def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
+        sock = sock if sock is not None else self.get_sock()
+        super().__init__(sock=sock, **kwargs)
 
 
 if __name__ == '__main__':
