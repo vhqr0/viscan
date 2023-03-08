@@ -9,7 +9,7 @@ from ..defaults import (
 )
 from ..common.base import ResultParser, MainRunner, SRScanner, BaseScanner
 from ..common.decorators import override
-from .common.argparser import ScanArgParser
+from ..common.argparser import ScanArgParser
 
 
 class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner):
