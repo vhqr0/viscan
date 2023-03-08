@@ -64,7 +64,7 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner):
 class PingRouteTracer(RouteTracer, PingRouteSubTracer, MainRunner):
     sub_tracer_type = PingRouteSubTracer
 
-    def __init__(self, sock: Optional[socket.socket], **kwargs):
+    def __init__(self, sock: Optional[socket.socket] = None, **kwargs):
         sock = sock if sock is not None else self.get_sock()
         super().__init__(sock=sock, **kwargs)
 
