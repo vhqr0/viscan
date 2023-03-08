@@ -1,3 +1,4 @@
+import scapy.layers.l2 as l2
 import scapy.layers.inet as inet
 import scapy.layers.inet6 as inet6
 import scapy.layers.dns as dns
@@ -36,13 +37,15 @@ class DNSRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
 
     @override(RouteSubTracer)
     def parse(self):
-        for pkt in self.recv_pkts:
+        for buf in self.recv_pkts:
             try:
-                if inet.UDP in pkt:
-                    self.result = (pkt.src, True)
+                pkt = l2.Ether(buf)
+                ippkt = pkt[inet6.IPv6]
+                if inet.UDP in ippkt:
+                    self.result = (ippkt.src, True)
                     return
                 # TODO: deeper analysis
-                self.result = (pkt.src, False)
+                self.result = (ippkt.src, False)
                 return
             except Exception as e:
                 self.logger.debug('except while parsing: %s', e)
