@@ -2,6 +2,7 @@
 
 from .traceroute.ping import PingRouteTracer
 from .traceroute.dns import DNSRouteTracer
+from .traceroute.syn import SynRouteTracer
 from .delimit import Delimiter
 from .hostscan import HostScanner
 from .portscan import PortScanner
