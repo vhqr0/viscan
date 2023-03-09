@@ -18,7 +18,7 @@ class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
     target_port: int
 
     filter_template = 'ip6 and ' \
-        '('\
+        '(' \
         ' icmp6[icmp6type]==icmp6-timeexceeded or' \
         ' (tcp dst port {} and tcp src port {} and ip6 src {})' \
         ')'
