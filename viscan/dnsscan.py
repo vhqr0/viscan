@@ -20,6 +20,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
     limit: int
     no_recursive: bool
     skip_check_autogen: bool
+    via_tcp: bool
 
     SUFFIX = 'ip6.arpa.'
     SUFFIXLEN = len(SUFFIX)
@@ -30,6 +31,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
                  limit: int = DNS_LIMIT,
                  no_recursive: bool = False,
                  skip_check_autogen: bool = False,
+                 via_tcp: bool = False,
                  **kwargs):
         super().__init__(**kwargs)
         if not basename.endswith(self.SUFFIX):
@@ -40,6 +42,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
         self.limit = 2 * limit + self.SUFFIXLEN
         self.no_recursive = no_recursive
         self.skip_check_autogen = skip_check_autogen
+        self.via_tcp = via_tcp
 
     @override(ResultParser)
     def show(self):
@@ -85,9 +88,8 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
             query = dns.message.make_query(name, 'PTR')
             if self.no_recursive:
                 query.flags = 0
-            res = dns.query.udp(query,
-                                self.nameserver,
-                                timeout=self.send_timewait)
+            res = (dns.query.tcp if self.via_tcp else dns.query.udp)(
+                query, self.nameserver, self.send_timewait)
             if res.rcode() == 0:
                 return True
         except Exception as e:
@@ -103,6 +105,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
     def get_argparser(cls, *args, **kwargs) -> ScanArgParser:
         parser = super().get_argparser(*args, **kwargs)
         parser.add_limit_dwim(DNS_LIMIT)
+        parser.add_argument('--tcp', action='store_true')
         return parser
 
     @classmethod
@@ -112,6 +115,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
         kwargs['limit'] = args.limit_dwim
         kwargs['no_recursive'] = args.no_dwim
         kwargs['skip_check_autogen'] = args.skip_dwim
+        kwargs['via_tcp'] = args.via_tcp
         if len(args.targets) >= 1:
             kwargs['basename'] = args.targets[0]
         if len(args.targets) >= 2:
