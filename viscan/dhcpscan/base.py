@@ -147,7 +147,7 @@ class DHCPBaseScanner(UDPScanner, MainRunner):
         kwargs['step'] = args.step_dwim
         kwargs['retry'] = args.retry_dwim
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
-        if len(args.targets) > 2:
+        if len(args.targets) >= 2:
             kwargs['linkaddr'] = AddrGenerator.resolve(args.targets[1])
         return kwargs
 

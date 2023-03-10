@@ -72,7 +72,7 @@ class DHCPRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
-        if len(args.targets) > 2:
+        if len(args.targets) >= 2:
             kwargs['linkaddr'] = AddrGenerator.resolve(args.targets[1])
         return kwargs
 

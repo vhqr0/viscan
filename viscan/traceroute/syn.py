@@ -60,8 +60,8 @@ class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
     def parse_args(cls, args: Namespace) -> dict[str, Any]:
         kwargs = super().parse_args(args)
         kwargs['target'] = AddrGenerator.resolve(args.targets[0])
-        kwargs['port'] = int(args.targets[1]) \
-            if len(args.targets) >= 2 else 53
+        if len(args.targets) >= 2:
+            kwargs['target_port'] = int(args.targets[1])
         return kwargs
 
 

@@ -112,10 +112,10 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
         kwargs['limit'] = args.limit_dwim
         kwargs['no_recursive'] = args.no_dwim
         kwargs['skip_check_autogen'] = args.skip_dwim
-        kwargs['basename'] = args.targets[0] \
-            if len(args.targets) >= 1 else 'ip6.arpa.'
-        kwargs['nameserver'] = args.targets[1] \
-            if len(args.targets) >= 2 else None
+        if len(args.targets) >= 1:
+            kwargs['basename'] = args.targets[0]
+        if len(args.targets) >= 2:
+            kwargs['nameserver'] = args.targets[1]
         return kwargs
 
 
