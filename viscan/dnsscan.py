@@ -88,8 +88,10 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
             query = dns.message.make_query(name, 'PTR')
             if self.no_recursive:
                 query.flags = 0
-            res = (dns.query.tcp if self.via_tcp else dns.query.udp)(
-                query, self.nameserver, self.send_timewait)
+            if self.via_tcp:
+                res = dns.query.tcp(query, self.nameserver)
+            else:
+                res = dns.query.udp(query, self.nameserver, self.send_timewait)
             if res.rcode() == 0:
                 return True
         except Exception as e:
