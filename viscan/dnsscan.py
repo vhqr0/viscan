@@ -115,7 +115,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
         kwargs['limit'] = args.limit_dwim
         kwargs['no_recursive'] = args.no_dwim
         kwargs['skip_check_autogen'] = args.skip_dwim
-        kwargs['via_tcp'] = args.via_tcp
+        kwargs['via_tcp'] = args.tcp
         if len(args.targets) >= 1:
             kwargs['basename'] = args.targets[0]
         if len(args.targets) >= 2:
