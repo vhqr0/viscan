@@ -34,10 +34,10 @@ class ICMP6Filter:
     def setblock(self, icmp6type: int):
         self.filter[icmp6type >> 5] |= 1 << (icmp6type & 0x1f)
 
-    def willpass(self, icmp6type: int):
+    def willpass(self, icmp6type: int) -> bool:
         return self.filter[icmp6type >> 5] & (1 << (icmp6type & 0x1f)) == 0
 
-    def willblock(self, icmp6type: int):
+    def willblock(self, icmp6type: int) -> bool:
         return self.filter[icmp6type >> 5] & (1 << (icmp6type & 0x1f)) == 1
 
     def setsockopt(self, sock: socket.socket):
