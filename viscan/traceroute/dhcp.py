@@ -65,7 +65,9 @@ class DHCPRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
             dhcp6.DHCP6OptIA_NA(iaid=random.getrandbits(32)) / \
             dhcp6.DHCP6OptIA_TA(iaid=random.getrandbits(32)) / \
             dhcp6.DHCP6OptIA_PD(iaid=random.getrandbits(32))
-        pkt = inet6.IPv6(dst=self.target, hlim=self.hop) / \
+        pkt = inet6.IPv6(dst=self.target,
+                         fl=random.getrandbits(20),
+                         hlim=self.hop) / \
             inet.UDP(sport=547, dport=547) / \
             dhcp6.DHCP6_RelayForward(linkaddr=self.linkaddr) / \
             dhcp6.DHCP6OptRelayMsg(message=msg)

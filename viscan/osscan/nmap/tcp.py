@@ -47,7 +47,7 @@ class NmapTECNFingerPrinter(NmapTCPOpenPortFingerPrinter):
 
     @override(NmapTCPOpenPortFingerPrinter)
     def get_pkt(self) -> inet6.IPv6:
-        pkt = inet6.IPv6(dst=self.target) / \
+        pkt = inet6.IPv6(dst=self.target, fl=random.getrandbits(20)) / \
             inet.TCP(sport=self.port,
                      dport=self.target_port,
                      seq=random.getrandbits(32),
@@ -134,7 +134,7 @@ class NmapT1FingerPrinter(NmapTCPOpenPortFingerPrinter):
         pkts = []
         for seq, arg in enumerate(self.tcp_args):
             window, opts = arg
-            pkt = inet6.IPv6(dst=self.target) / \
+            pkt = inet6.IPv6(dst=self.target, fl=random.getrandbits(20)) / \
                 inet.TCP(sport=self.port,
                          dport=self.target_port,
                          seq=seq,
@@ -163,7 +163,7 @@ class NmapTCPSender(NmapTCPFingerPrinter):
 
     @override(NmapTCPFingerPrinter)
     def get_pkt(self) -> inet6.IPv6:
-        pkt = inet6.IPv6(dst=self.target) / \
+        pkt = inet6.IPv6(dst=self.target, fl=random.getrandbits(20)) / \
             inet.TCP(sport=self.port,
                      dport=self.target_port,
                      seq=random.getrandbits(32),

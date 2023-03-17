@@ -24,7 +24,7 @@ class NmapU1FingerPrinter(OSFingerPrinter):
     def get_pkts(self) -> list[inet6.IPv6]:
         pkts = []
         for _ in range(3):
-            pkt = inet6.IPv6(dst=self.target) / \
+            pkt = inet6.IPv6(dst=self.target, fl=random.getrandbits(20)) / \
                 inet.UDP(sport=self.port, dport=random.getrandbits(16)) / \
                 random.randbytes(random.randint(20, 40))
             pkts.append(pkt)
@@ -44,7 +44,7 @@ class NmapIE1FingerPrinter(OSFingerPrinter):
 
     @override(OSFingerPrinter)
     def get_pkt(self) -> inet6.IPv6:
-        pkt = inet6.IPv6(dst=self.target) / \
+        pkt = inet6.IPv6(dst=self.target, fl=random.getrandbits(20)) / \
             inet6.IPv6ExtHdrHopByHop(options=[Pad4]) / \
             inet6.ICMPv6EchoRequest(
                 code=128 + random.getrandbits(7),
@@ -71,7 +71,7 @@ class NmapIE2FingerPrinter(OSFingerPrinter):
 
     @override(OSFingerPrinter)
     def get_pkt(self) -> inet6.IPv6:
-        pkt = inet6.IPv6(dst=self.target) / \
+        pkt = inet6.IPv6(dst=self.target, fl=random.getrandbits(20)) / \
             inet6.IPv6ExtHdrHopByHop(options=[Pad4]) / \
             inet6.IPv6ExtHdrDestOpt(options=[Pad4]) / \
             inet6.IPv6ExtHdrRouting() / \

@@ -59,7 +59,7 @@ class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
     def get_pkts(self) -> list[inet6.IPv6]:
         pkts = []
         for seq, target in enumerate(self.targets):
-            pkt = inet6.IPv6(dst=target[0]) / \
+            pkt = inet6.IPv6(dst=target[0], fl=random.getrandbits(20)) / \
                 inet.TCP(sport=self.port,
                          dport=target[1],
                          seq=seq,

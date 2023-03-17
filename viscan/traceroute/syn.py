@@ -1,3 +1,5 @@
+import random
+
 import scapy.layers.l2 as l2
 import scapy.layers.inet as inet
 import scapy.layers.inet6 as inet6
@@ -55,7 +57,9 @@ class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
 
     @override(PcapScanner)
     def get_pkt(self) -> inet6.IPv6:
-        pkt = inet6.IPv6(dst=self.target, hlim=self.hop) / \
+        pkt = inet6.IPv6(dst=self.target,
+                         fl=random.getrandbits(20),
+                         hlim=self.hop) / \
             inet.TCP(sport=self.port, dport=self.target_port, flags='S')
         return pkt
 
