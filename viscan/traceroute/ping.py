@@ -9,6 +9,7 @@ from ..common.dgram import ICMP6Scanner
 from ..common.decorators import override, auto_add_logger
 from ..common.generators import AddrGenerator
 from ..common.icmp6_utils import (
+    ICMP6_DEST_UNREACH,
     ICMP6_TIME_EXCEEDED,
     ICMP6_ECHO_REQ,
     ICMP6_ECHO_REP,
@@ -20,7 +21,7 @@ from .base import RouteSubTracer, RouteTracer
 class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
     target: str
 
-    icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_TIME_EXCEEDED]
+    icmp6_whitelist = [ICMP6_ECHO_REP, ICMP6_DEST_UNREACH, ICMP6_TIME_EXCEEDED]
 
     def __init__(self, target: str, **kwargs):
         super().__init__(**kwargs)
@@ -31,7 +32,7 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
         for pkt in self.recv_pkts:
             try:
                 addr, _, buf = pkt
-                t, _, _, port, seq = \
+                t, code, _, port, seq = \
                     struct.unpack_from('!BBHHH', buffer=buf, offset=0)
                 if t == ICMP6_ECHO_REP and \
                    addr == self.target and \
@@ -39,9 +40,25 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
                    seq == self.hop:
                     self.result = (addr, 'arrived', True)
                     return
-                if t == ICMP6_TIME_EXCEEDED:
-                    # TODO: deeper analysis
-                    self.result = (addr, 'time exceeded', False)
+                if t in (ICMP6_DEST_UNREACH, ICMP6_TIME_EXCEEDED) and \
+                   socket.inet_ntop(socket.AF_INET6, buf[32:48]) \
+                   == self.target:
+                    arrived = False
+                    if t == ICMP6_DEST_UNREACH:
+                        if code == 0:
+                            reason = 'dest route'
+                        elif code == 1:
+                            reason = 'dest prohibited'
+                        elif code == 3:
+                            reason = 'dest addr'
+                        elif code == 4:
+                            reason = 'dest port'
+                        else:
+                            reason = 'dest unknown'
+                        arrived = True
+                    else:
+                        reason = 'time exceeded'
+                    self.result = (addr, reason, arrived)
                     return
             except Exception as e:
                 self.logger.debug('except while parsing: %s', e)
