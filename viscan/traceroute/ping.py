@@ -37,11 +37,11 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
                    addr == self.target and \
                    port == self.port and \
                    seq == self.hop:
-                    self.result = (addr, True)
+                    self.result = (addr, 'arrived', True)
                     return
                 if t == ICMP6_TIME_EXCEEDED:
                     # TODO: deeper analysis
-                    self.result = (addr, False)
+                    self.result = (addr, 'time exceeded', False)
                     return
             except Exception as e:
                 self.logger.debug('except while parsing: %s', e)

@@ -20,6 +20,7 @@ class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
     filter_template = 'ip6 and ' \
         '(' \
         ' icmp6[icmp6type]==icmp6-timeexceeded or' \
+        ' icmp6[icmp6type]==icmp6-destinationunreach or ' \
         ' (tcp dst port {} and tcp src port {} and ip6 src {})' \
         ')'
 
@@ -35,11 +36,14 @@ class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
                 pkt = l2.Ether(buf)
                 ippkt = pkt[inet6.IPv6]
                 if inet.TCP in ippkt:
-                    self.result = (ippkt.src, True)
+                    self.result = (ippkt.src, 'arrived', True)
                     return
-                # TODO: deeper analysis
-                self.result = (ippkt.src, False)
-                return
+                res = self.get_iperr(ippkt)
+                if res is not None:
+                    err, reason, arrived = res
+                    if err.dst == self.target:
+                        self.result = (ippkt.src, reason, arrived)
+                        return
             except Exception as e:
                 self.logger.debug('except while parsing: %s', e)
         raise RuntimeError('no response')

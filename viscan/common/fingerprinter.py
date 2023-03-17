@@ -2,7 +2,7 @@ import base64
 
 from scapy.packet import Packet
 
-from typing import Any, Optional, Type
+from typing import Any, Optional
 
 from .base import ResultParser, BaseScanner
 from .decorators import override
@@ -46,7 +46,7 @@ class FingerPrinter(ResultParser[dict[str, Optional[Packet]]], BaseScanner):
 class EnsembleFingerPrinter(FingerPrinter):
     kwargs: dict[str, Any]
 
-    fp_types: list[Type[FingerPrinter]] = []
+    fp_types: list[type[FingerPrinter]] = []
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)

@@ -1,5 +1,7 @@
 import random
 
+import scapy.layers.inet6 as inet6
+
 from typing import Any, Optional
 from argparse import Namespace
 
@@ -12,7 +14,7 @@ from ..common.decorators import override
 from ..common.argparser import ScanArgParser
 
 
-class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner,
+class RouteSubTracer(ResultParser[Optional[tuple[str, str, bool]]], SRScanner,
                      MainRunner):
     hop: int
     port: int
@@ -22,7 +24,7 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner,
         self.hop = hop
         self.port = random.getrandbits(16)
 
-    def trace(self) -> Optional[tuple[str, bool]]:
+    def trace(self) -> Optional[tuple[str, str, bool]]:
         for _ in range(self.send_retry):
             try:
                 self.scan_and_parse()
@@ -31,6 +33,32 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner,
             except Exception:
                 pass
         return self.result
+
+    def get_iperr(
+            self,
+            pkt: inet6.IPv6) -> Optional[tuple[inet6.IPerror6, str, bool]]:
+        if inet6.IPerror6 not in pkt:
+            return None
+        err = pkt[inet6.IPerror6]
+        arrived = False
+        if inet6.ICMPv6DestUnreach in pkt:
+            unreach = pkt[inet6.ICMPv6DestUnreach]
+            if unreach.code == 0:
+                reason = 'dest route'
+            elif unreach.code == 1:
+                reason = 'dest prohibited'
+            elif unreach.code == 3:
+                reason = 'dest addr'
+            elif unreach.code == 4:
+                reason = 'dest port'
+            else:
+                reason = 'dest unknown'
+            arrived = True
+        elif inet6.ICMPv6TimeExceeded in pkt:
+            reason = 'time exceeded'
+        else:
+            reason = 'unknown'
+        return (err, reason, arrived)
 
     @override(SRScanner)
     def send_reset(self):
@@ -56,7 +84,8 @@ class RouteSubTracer(ResultParser[Optional[tuple[str, bool]]], SRScanner,
         return kwargs
 
 
-class RouteTracer(ResultParser[list[Optional[str]]], MainRunner, BaseScanner):
+class RouteTracer(ResultParser[list[tuple[int, str, str, bool]]], MainRunner,
+                  BaseScanner):
     limit: int
     kwargs: dict[str, Any]
     sub_tracer: RouteSubTracer
@@ -76,21 +105,21 @@ class RouteTracer(ResultParser[list[Optional[str]]], MainRunner, BaseScanner):
     @override(ResultParser)
     def show(self):
         assert self.result is not None
-        for i, addr in enumerate(self.result):
-            print(f'{i+1}\t{addr}')
+        for hop, addr, reason, arrived in self.result:
+            print(f'{hop}\t{addr}\t{reason}\t{arrived}')
 
     @override(BaseScanner)
     def scan_and_parse(self):
-        results: list[Optional[str]] = []
+        results: list[tuple[int, str, str, bool]] = []
         while self.sub_tracer.hop <= self.limit:
             result = self.sub_tracer.trace()
             self.logger.debug('trace %d %s', self.sub_tracer.hop,
                               self.sub_tracer.result)
             if result is None:
-                results.append(None)
+                results.append((self.sub_tracer.hop, '', '', False))
             else:
-                addr, arrived = result
-                results.append(addr)
+                addr, reason, arrived = result
+                results.append((self.sub_tracer.hop, addr, reason, arrived))
                 if arrived:
                     break
             self.sub_tracer.hop += 1
