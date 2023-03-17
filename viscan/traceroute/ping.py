@@ -34,8 +34,8 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
                 addr, _, buf = pkt
                 t, code, _, port, seq = \
                     struct.unpack_from('!BBHHH', buffer=buf, offset=0)
+                # don't check addr
                 if t == ICMP6_ECHO_REP and \
-                   addr == self.target and \
                    port == self.port and \
                    seq == self.hop:
                     self.result = (addr, 'arrived', True)
