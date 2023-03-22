@@ -6,6 +6,9 @@ mypy:
 flake8:
 	flake8 viscan/**/*.py
 
+build:
+	python3 -m build
+
 yapf:
 	yapf viscan/**/*.py
 

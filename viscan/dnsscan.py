@@ -76,7 +76,7 @@ class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
         for _ in range(16):
             a = '.'.join(random.randbytes(16).hex())
             name = f'{a}.{self.basename}'
-            name = name[:64 + self.SUFFIXLEN]
+            name = name[-(64 + self.SUFFIXLEN):]
             if self.query_noerror(name):
                 c += 1
                 if c >= 4:
