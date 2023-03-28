@@ -1,16 +1,16 @@
-lint: mypy flake8
+lint: flake8 mypy
 
 mypy:
 	mypy --ignore-missing-imports --check-untyped-defs -m viscan.all
 
 flake8:
-	flake8 viscan/**/*.py
+	flake8 viscan
+
+yapf:
+	yapf -i -r viscan
 
 build:
 	python3 -m build
-
-yapf:
-	yapf viscan/**/*.py
 
 viz:
 	pyreverse -o png viscan

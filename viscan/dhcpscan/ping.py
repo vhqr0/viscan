@@ -29,7 +29,7 @@ class DHCPReplyFingerPrinter(FingerPrinter, DHCPBaseScanner):
 
 
 @auto_add_logger
-class DHCPAdvertiseFingerPrinter(FingerPrinter, DHCPSoliciter):
+class DHCPAdvertiseFingerPrinter(FingerPrinter, DHCPBaseScanner):
     soliciter: DHCPSoliciter
 
     fp_names = ['advertise']

@@ -220,7 +220,7 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
                     max_inlimit = (plen, naddrs)
             elif naddrs > limit:
                 if min_outlimit is None or naddrs < min_outlimit[1]:
-                    max_outlimit = (plen, naddrs)
+                    min_outlimit = (plen, naddrs)
             elif naddrs == 1:
                 dist = abs(plen - 64)
                 if nearest_one is None or dist < nearest_one[1]:
@@ -230,8 +230,8 @@ class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
             return max_inlimit[0]
         if nearest_one is not None:
             return nearest_one[0]
-        if max_outlimit is not None:
-            return max_outlimit[0]
+        if min_outlimit is not None:
+            return min_outlimit[0]
         return 64
 
     @override(ResultParser)
