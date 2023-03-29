@@ -13,4 +13,4 @@ build:
 	python3 -m build
 
 viz:
-	pyreverse -o png viscan
+	pyreverse -m n -k --colorized -o png viscan

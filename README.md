@@ -17,6 +17,7 @@ Usage
 ```
 python -m viscan.traceroute.ping -h
 python -m viscan.traceroute.dns -h
+python -m viscan.traceroute.dhcp -h
 python -m viscan.traceroute.syn -h
 python -m viscan.delimit -h
 python -m viscan.hostscan -h
