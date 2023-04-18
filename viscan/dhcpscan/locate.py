@@ -5,12 +5,11 @@ import functools
 from typing import Any, Optional
 
 from ..common.base import ResultParser
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from .base import DHCPBaseScanner, DHCPSoliciter
 from .scale import DHCPScaler, DHCPPoolScale
 
 
-@auto_add_logger
 class DHCPLocator(ResultParser[int], DHCPBaseScanner):
     scaler: DHCPScaler
     soliciter: DHCPSoliciter

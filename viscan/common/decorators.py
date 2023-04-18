@@ -1,5 +1,3 @@
-import logging
-
 from typing import TypeVar, Any
 from collections.abc import Callable
 
@@ -18,11 +16,3 @@ def override(cls: Any) -> Callable[[Meth], Meth]:
         return meth
 
     return override
-
-
-Cls = TypeVar('Cls')
-
-
-def auto_add_logger(cls: Cls) -> Cls:
-    setattr(cls, 'logger', logging.getLogger(getattr(cls, '__name__')))
-    return cls

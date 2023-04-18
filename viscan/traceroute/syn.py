@@ -9,12 +9,11 @@ from argparse import Namespace
 
 from ..common.base import MainRunner
 from ..common.pcap import PcapScanner
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from ..common.generators import AddrGenerator
 from .base import RouteSubTracer, RouteTracer
 
 
-@auto_add_logger
 class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
     target: str
     target_port: int
@@ -73,7 +72,6 @@ class SYNRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
         return kwargs
 
 
-@auto_add_logger
 class SYNRouteTracer(RouteTracer, SYNRouteSubTracer):
     sub_tracer_type = SYNRouteSubTracer
 

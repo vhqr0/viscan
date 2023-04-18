@@ -16,7 +16,7 @@ from ..defaults import (
 )
 from ..common.base import ResultParser, MainRunner
 from ..common.dgram import UDPScanner
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from ..common.argparser import ScanArgParser
 from ..common.generators import AddrGenerator
 
@@ -193,7 +193,6 @@ class DHCPRetriever(ResultParser[dhcp6.DHCP6], DHCPBaseScanner):
         self.send_pkts_with_retry()
 
 
-@auto_add_logger
 class DHCPRequester(DHCPRetriever):
     retrieve_type = dhcp6.DHCP6_Reply
 
@@ -204,7 +203,6 @@ class DHCPRequester(DHCPRetriever):
         return (self.target, 547, buf)
 
 
-@auto_add_logger
 class DHCPSoliciter(DHCPRetriever):
     retrieve_type = dhcp6.DHCP6_Advertise
 

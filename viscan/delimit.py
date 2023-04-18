@@ -12,13 +12,12 @@ from .defaults import (
 )
 from .common.base import ResultParser, MainRunner, BaseScanner
 from .common.dgram import ICMP6Scanner
-from .common.decorators import override, auto_add_logger
+from .common.decorators import override
 from .common.argparser import ScanArgParser
 from .common.generators import AddrGenerator
 from .common.icmp6_utils import ICMP6_ECHO_REQ
 
 
-@auto_add_logger
 class SubDelimiter(ResultParser[bool], ICMP6Scanner):
     target: str
     port: int
@@ -66,7 +65,6 @@ class SubDelimiter(ResultParser[bool], ICMP6Scanner):
         self.send_pkts_with_retry()
 
 
-@auto_add_logger
 class Delimiter(ResultParser[tuple[int, int]], MainRunner, BaseScanner):
     target: str
     limit: int

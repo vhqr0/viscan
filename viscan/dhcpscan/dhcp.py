@@ -8,7 +8,7 @@ from argparse import Namespace
 
 from ..defaults import DHCP_STATELESS_SEARCH_RANGE
 from ..common.base import ResultParser, MainRunner
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from ..common.argparser import ScanArgParser
 from .base import DHCPBaseScanner
 from .ping import DHCPPinger
@@ -77,7 +77,6 @@ class DHCPInfo:
                         print(f'{name}\t{scale.summary()}')
 
 
-@auto_add_logger
 class DHCPScanner(ResultParser[DHCPInfo], DHCPBaseScanner):
     kwargs: dict[str, Any]
     stateless_search_range: tuple[int, int, int]

@@ -6,7 +6,7 @@ from argparse import Namespace
 
 from ..common.base import MainRunner
 from ..common.dgram import ICMP6Scanner
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from ..common.generators import AddrGenerator
 from ..common.icmp6_utils import (
     ICMP6_DEST_UNREACH,
@@ -17,7 +17,6 @@ from ..common.icmp6_utils import (
 from .base import RouteSubTracer, RouteTracer
 
 
-@auto_add_logger
 class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
     target: str
 
@@ -84,7 +83,6 @@ class PingRouteSubTracer(RouteSubTracer, ICMP6Scanner, MainRunner):
         return kwargs
 
 
-@auto_add_logger
 class PingRouteTracer(RouteTracer, PingRouteSubTracer):
     sub_tracer_type = PingRouteSubTracer
 

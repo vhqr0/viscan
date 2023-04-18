@@ -10,12 +10,11 @@ from argparse import Namespace
 
 from ..common.base import MainRunner
 from ..common.pcap import PcapScanner
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from ..common.generators import AddrGenerator
 from .base import RouteSubTracer, RouteTracer
 
 
-@auto_add_logger
 class DHCPRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
     target: str
     linkaddr: str
@@ -83,7 +82,6 @@ class DHCPRouteSubTracer(RouteSubTracer, PcapScanner, MainRunner):
         return kwargs
 
 
-@auto_add_logger
 class DHCPRouteTracer(RouteTracer, DHCPRouteSubTracer):
     sub_tracer_type = DHCPRouteSubTracer
 

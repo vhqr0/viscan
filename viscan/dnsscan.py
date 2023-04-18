@@ -9,11 +9,10 @@ from argparse import Namespace
 
 from .defaults import DNS_LIMIT
 from .common.base import ResultParser, Sender, MainRunner, BaseScanner
-from .common.decorators import override, auto_add_logger
+from .common.decorators import override
 from .common.argparser import ScanArgParser
 
 
-@auto_add_logger
 class DNSScanner(ResultParser[list[str]], Sender, MainRunner, BaseScanner):
     basename: str
     nameserver: str

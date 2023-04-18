@@ -5,11 +5,10 @@ import scapy.layers.dhcp6 as dhcp6
 from typing import Any, Optional
 
 from ..common.base import ResultParser
-from ..common.decorators import override, auto_add_logger
+from ..common.decorators import override
 from .base import DHCPBaseScanner
 
 
-@auto_add_logger
 class DHCPEnumerator(
         ResultParser[list[tuple[str, Optional[dhcp6.DHCP6_Advertise]]]],
         DHCPBaseScanner):

@@ -4,7 +4,6 @@ import json
 import logging
 
 from typing import Generic, TypeVar, Any, Optional
-from logging import Logger
 from argparse import Namespace
 
 from ..defaults import (
@@ -14,17 +13,25 @@ from ..defaults import (
     SEND_TIMEWAIT,
     SEND_INTERVAL,
 )
-from .decorators import override, auto_add_logger
+from .decorators import override
 from .argparser import ScanArgParser
 
 
-@auto_add_logger
-class BaseScanner:
-    logger: Logger
+class Loggable:
+    """Auto add logger based on class name."""
+
+    logger: logging.Logger
+
+    def __init_subclass__(cls, **kwargs):
+        cls.logger = logging.getLogger(cls.__name__)
+        super().__init_subclass__(**kwargs)
 
     def __init__(self, **kwargs):
         for k in kwargs:
-            self.logger.warning('unused kwarg: %s', k)
+            self.logger.debug('unused kwarg: %s', k)
+
+
+class BaseScanner(Loggable):
 
     @classmethod
     def main(cls):

@@ -9,11 +9,10 @@ from argparse import Namespace
 
 from .common.base import ResultParser, MainRunner
 from .common.pcap import PcapScanner
-from .common.decorators import override, auto_add_logger
+from .common.decorators import override
 from .common.generators import AddrPortGenerator
 
 
-@auto_add_logger
 class PortScanner(ResultParser[list[tuple[str, int, str]]], PcapScanner,
                   MainRunner):
     targets: list[tuple[str, int]]
